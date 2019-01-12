@@ -15,9 +15,8 @@ alphanumeral [A-Za-z0-9]
 %%
 
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
-<HEADERFILESTATE>("<"{alphabet}+".h>")	{printf("Preprocessor-header-file: Header file with <>\n");}
-<HEADERFILESTATE>(["]{alphabet}+".h"["])	{printf("Preprocessor-header-file: Header file with \"\"\n");}
-<HEADERFILESTATE>("\n"|" ")	{BEGIN INITIAL;}
+<HEADERFILESTATE>("<"{alphabet}+".h>")("\r\n"*)	{printf("Preprocessor-header-file: Header file with <>\n"); BEGIN INITIAL;}
+<HEADERFILESTATE>(["]{alphabet}+".h"["])("\r\n"*)	{printf("Preprocessor-header-file: Header file with \"\"\n"); BEGIN INITIAL;}
 <HEADERFILESTATE>.*	{printf("Preprocessor-header-file: Error\n"); BEGIN INITIAL;}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
@@ -40,3 +39,10 @@ int main() {
 	yylex();	
 	return 0;
 }
+
+
+/*
+For windows ENTER is "\r\n" CLRF
+Others "\n" RF
+
+*/
