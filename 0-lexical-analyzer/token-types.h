@@ -56,6 +56,8 @@ enum operators
 enum constants
 {
   INT_CONST=400,
-  STRING_CONST
+  STRING_CONST,
+  HEX_CONST,
+  REAL_CONST
 };
 
