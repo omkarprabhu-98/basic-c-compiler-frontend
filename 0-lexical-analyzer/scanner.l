@@ -8,11 +8,13 @@ alphabet [A-Za-z]
 alphanumeral [A-Za-z0-9]
 hex [0-9a-f]
 digit [0-9]
+identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 
 /* Exclusive states */
 %x HEADERFILESTATE
 %x MACROSTATE
 %x MULCOMMENTSTATE
+%x IDENTIFIERSTATE
 
 %%
 
@@ -32,6 +34,28 @@ digit [0-9]
 <MULCOMMENTSTATE>("\n"|.)	;
 <MULCOMMENTSTATE>"/*"	{printf("Comment: Error Nested Multiline comment\n"); BEGIN INITIAL;}
 <MULCOMMENTSTATE>"*/"	{printf("Comment: Multiline comment ends"); BEGIN INITIAL;}
+
+
+"int"                   {printf("Identified INT\n");BEGIN IDENTIFIERSTATE;}
+"long"                  {printf("Identified LONG\n");BEGIN IDENTIFIERSTATE;}
+"short"                 {printf("Identified SHORT\n");BEGIN IDENTIFIERSTATE;}
+"long long"             {printf("Identified LONG LONG\n");BEGIN IDENTIFIERSTATE;}
+"char"                  {printf("Identified CHAR\n");BEGIN IDENTIFIERSTATE;}
+"signed"                {printf("Identified SIGNED\n");BEGIN IDENTIFIERSTATE;}
+"unsigned"              {printf("Identified UNSIGNED\n");BEGIN IDENTIFIERSTATE;}
+"float"                 {printf("Identified FLOAT\n");BEGIN IDENTIFIERSTATE;}
+"double"                {printf("Identified DOUBLE\n");BEGIN IDENTIFIERSTATE;}
+"for"                   {printf("Identified FOR\n");}
+"if"                    {printf("Identified IF\n");}
+"else"                  {printf("Identified ELSE\n");}
+"continue"              {printf("Identified CONTINUE\n");}
+"break"                 {printf("Identified BREAK\n");}
+"return"                {printf("Identified RETURN\n");}
+<IDENTIFIERSTATE>([ ]*)     ;
+<IDENTIFIERSTATE>({identifier}) {printf("Identified the identifier: //%s//\n",yytext);BEGIN INITIAL;}
+<IDENTIFIERSTATE>({digit})      {printf("Error in identifier naming\n"); BEGIN INITIAL;}
+({digit}+)({identifier})              {printf("Error in identifier naming\n");}
+({identifier})                        {printf("Identified the identifier1: //%s//\n",yytext);}
 
 
 [+\-]?[0][x|X]{hex}+[lLuU]?	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, HEX_CONST);}

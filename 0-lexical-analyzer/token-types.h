@@ -3,7 +3,20 @@
 */
 enum keywords
 {
-  INT=100
+  INT=100,
+  SHORT,
+  LONG_LONG,
+  CHAR,
+  SIGNED,
+  UNSIGNED,
+  FLOAT,
+  DOUBLE,
+  FOR,
+  IF,
+  ELSE,
+  CONTINUE,
+  BREAK,
+  RETURN,
 };
 
 enum identifiers
