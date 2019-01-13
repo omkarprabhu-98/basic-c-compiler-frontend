@@ -14,7 +14,6 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 %x HEADERFILESTATE
 %x MACROSTATE
 %x MULCOMMENTSTATE
-%x IDENTIFIERSTATE
 
 %%
 
@@ -36,27 +35,24 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 <MULCOMMENTSTATE>"*/"	{printf("Comment: Multiline comment ends"); BEGIN INITIAL;}
 
 
-"int"			{printf("Identified INT\n");BEGIN IDENTIFIERSTATE;}
-"long"			{printf("Identified LONG\n");BEGIN IDENTIFIERSTATE;}
-"short"			{printf("Identified SHORT\n");BEGIN IDENTIFIERSTATE;}
-"long long"		{printf("Identified LONG LONG\n");BEGIN IDENTIFIERSTATE;}
-"char"			{printf("Identified CHAR\n");BEGIN IDENTIFIERSTATE;}
-"signed"		{printf("Identified SIGNED\n");BEGIN IDENTIFIERSTATE;}
-"unsigned"		{printf("Identified UNSIGNED\n");BEGIN IDENTIFIERSTATE;}
-"float"			{printf("Identified FLOAT\n");BEGIN IDENTIFIERSTATE;}
-"double"		{printf("Identified DOUBLE\n");BEGIN IDENTIFIERSTATE;}
-"for"			{printf("Identified FOR\n");}
-"if"			{printf("Identified IF\n");}
-"else"			{printf("Identified ELSE\n");}
-"continue"		{printf("Identified CONTINUE\n");}
-"break"			{printf("Identified BREAK\n");}
-"return"		{printf("Identified RETURN\n");}
+"int"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, INT);}
+"long"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LONG);}
+"short"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, SHORT);}
+"long long"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LONG_LONG);}
+"char"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, CHAR);}
+"signed"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, SIGNED);}
+"unsigned"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, UNSIGNED);}
+"float"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, FLOAT);}
+"double"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, DOUBLE);}
+"for"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, FOR);}
+"if"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, IF);}
+"else"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, ELSE);}
+"continue"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, CONTINUE);}
+"break"			{printf("%d:\t%-10s : %3d\n", yylineno, yytext, BREAK);}
+"return"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, RETURN);}
 
-<IDENTIFIERSTATE>([ ]*)     ;
-<IDENTIFIERSTATE>({identifier}) {printf("Identified the identifier: //%s//\n",yytext);BEGIN INITIAL;}
-<IDENTIFIERSTATE>({digit})      {printf("Error in identifier naming\n"); BEGIN INITIAL;}
-({digit}+)({identifier})              {printf("Error in identifier naming\n");}
-({identifier})                        {printf("Identified the identifier1: //%s//\n",yytext);}
+({digit}+)({identifier})              {printf("%d:\t%-10s : %s\n", yylineno, yytext, "Error in identifier naming");}
+({identifier})                        {printf("%d:\t%-10s : %3d\n", yylineno, yytext, ID);}
 
 
 [+\-]?[0][x|X]{hex}+[lLuU]?	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, HEX_CONST);}

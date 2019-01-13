@@ -6,6 +6,7 @@ enum keywords
   INT=100,
   SHORT,
   LONG_LONG,
+  LONG,
   CHAR,
   SIGNED,
   UNSIGNED,
