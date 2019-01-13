@@ -1,11 +1,13 @@
 %{
 #include<stdio.h>
-
+#include "token-types.h"
 %}
 
 /* required definitions */
 alphabet [A-Za-z]
 alphanumeral [A-Za-z0-9]
+hex [0-9a-f]
+digit [0-9]
 
 /* Exclusive states */
 %x HEADERFILESTATE
@@ -30,6 +32,12 @@ alphanumeral [A-Za-z0-9]
 <MULCOMMENTSTATE>("\n"|.)	;
 <MULCOMMENTSTATE>"/*"	{printf("Comment: Error Nested Multiline comment\n"); BEGIN INITIAL;}
 <MULCOMMENTSTATE>"*/"	{printf("Comment: Multiline comment ends"); BEGIN INITIAL;}
+
+
+[+\-]?[0][x|X]{hex}+[lLuU]?	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, HEX_CONST);}
+[+\-]?{digit}+[lLuU]?		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, INT_CONST);}
+[+\-]?{digit}+[.]{digit}+	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, REAL_CONST);}
+\"[^\"\n]*\"				{printf("%d:\t%-10s : %3d\n", yylineno, yytext, STRING_CONST);}
 
 %%
 
