@@ -18,6 +18,7 @@ void insert_table (char *lexeme, char *type, int id) {
         newNode->type = (char *) malloc(sizeof(char)*strlen(type));
         strcpy(newNode->lexeme,lexeme);
         strcpy(newNode->type,type);
+        newNode->id = id;
     }
     else{
         struct table* current = head;
@@ -34,14 +35,20 @@ void insert_table (char *lexeme, char *type, int id) {
         newNode->type = (char *) malloc(sizeof(char)*strlen(type));
         strcpy(newNode->lexeme,lexeme);
         strcpy(newNode->type,type);
+        newNode->id = id;
         current->next = newNode;
     }
 }
 
 void print_table () {
     struct table *current = head;
+    printf("\n======================== SYMBOL TABLE ======================\n");
+    
+    printf("%-20s\t%-30s\t%-30s\n", "LEXEME", "TYPE", "Id");
+    printf("%-20s\t%-30s\t%-30s\n", "======", "====", "==");
+    printf("\n");
     while(current != NULL) {    
-        printf("%s\t%s\t%d\n", current->lexeme, current->type, current->id);
+        printf("%-20s\t%-30s\t%-30d\n", current->lexeme, current->type, current->id);
         current = current->next;
     }
 }

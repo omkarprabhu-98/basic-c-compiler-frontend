@@ -1,14 +1,16 @@
 /*================== REQUIRED FILES AND VARIABLES =====================*/
 %{
+	
 #include <stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#include "token-types.h"
-#include "table.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+
+#include "token-types.h"
+#include "table.h"
 
 %}
 
@@ -31,11 +33,11 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
 <HEADERFILESTATE>("<"{alphabet}+".h>")("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); yylineno++; BEGIN INITIAL;}
 <HEADERFILESTATE>(["]{alphabet}+".h"["])("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); yylineno++; BEGIN INITIAL;}
-<HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
+<HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
 <MACROSTATE>({alphanumeral}+[ ]+{alphanumeral}+)([ ]*)"\n"	{printf("Preprocessor-macros: Correct Macro\n");}
-<MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL;}
+<MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 
 "//".*"\n"?	{printf("Comment: Single line\n");}
@@ -46,24 +48,24 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 <MULCOMMENTSTATE>"*/"	{printf("Comment: Multiline comment ends"); BEGIN INITIAL;}
 
 
-"int"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, INT);}
-"long"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, LONG);}
-"short"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SHORT);}
-"long long"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, LONG_LONG);}
-"char"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CHAR);}
-"signed"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SIGNED);}
-"unsigned"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, UNSIGNED);}
-"float"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FLOAT);}
-"double"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, DOUBLE);}
-"for"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FOR);}
-"if"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, IF);}
-"else"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE);}
-"continue"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CONTINUE);}
-"break"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, BREAK);}
-"return"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RETURN);}
+"int"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, INT); insert_table(yytext, "KW", INT);}
+"long"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, LONG); insert_table(yytext, "KW", LONG);}
+"short"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SHORT); insert_table(yytext, "KW", SHORT);}
+"long long"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, LONG_LONG); insert_table(yytext, "KW", LONG_LONG);}
+"char"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CHAR); insert_table(yytext, "KW", CHAR);}
+"signed"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SIGNED); insert_table(yytext, "KW", SIGNED);}
+"unsigned"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, UNSIGNED); insert_table(yytext, "KW", UNSIGNED);}
+"float"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FLOAT); insert_table(yytext, "KW", FLOAT);}
+"double"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, DOUBLE); insert_table(yytext, "KW", DOUBLE);}
+"for"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FOR); insert_table(yytext, "KW", FOR);}
+"if"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, IF); insert_table(yytext, "KW", IF);}
+"else"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE); insert_table(yytext, "KW", ELSE);}
+"continue"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CONTINUE); insert_table(yytext, "KW", CONTINUE);}
+"break"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, BREAK); insert_table(yytext, "KW",BREAK);}
+"return"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RETURN); insert_table(yytext, "KW", RETURN);}
 
 ({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
-({identifier})				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ID);}
+({identifier})				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ID); insert_table(yytext, "ID", ID);}
 
 
 [+\-]?[0][x|X]{hex}+[lLuU]?	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, HEX_CONST);}
@@ -117,7 +119,8 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 int yywrap() {return 1;}
 
 int main() {
-	yylex();	
+	yylex();
+	print_table();	
 	return 0;
 }
 
