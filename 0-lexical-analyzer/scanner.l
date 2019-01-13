@@ -1,7 +1,10 @@
 /*================== REQUIRED FILES AND VARIABLES =====================*/
 %{
 #include <stdio.h>
+#include<string.h>
+#include<stdlib.h>
 #include "token-types.h"
+#include "table.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
