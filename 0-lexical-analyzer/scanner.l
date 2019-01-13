@@ -1,5 +1,5 @@
 %{
-#include<stdio.h>
+#include <stdio.h>
 #include "token-types.h"
 %}
 
@@ -38,6 +38,48 @@ digit [0-9]
 [+\-]?{digit}+[lLuU]?		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, INT_CONST);}
 [+\-]?{digit}+[.]{digit}+	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, REAL_CONST);}
 \"[^\"\n]*\"				{printf("%d:\t%-10s : %3d\n", yylineno, yytext, STRING_CONST);}
+
+
+\n		{yylineno++;}
+
+"++"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, INCREMENT);}
+"--"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, DECREMENT);}
+"-"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, SUBTRACTION);}
+"+"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, ADDITION);}
+"*"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, MULTIPLICATION);}
+"/"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, DIVISION);}
+"%"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, MODULO);}
+"^"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, POWER);}
+
+"=="	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, EQUALS);}
+"<="	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LESS_THAN_EQUAL_TO);}
+">="	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, GREATER_THAN_EQUAL_TO);}
+"<"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LESS_THAN);}
+">"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, GREATER_THAN);}
+"!="	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, NOT_EQUAL);}
+
+"="		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, ASSIGN);}
+
+"&&"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LOGICAL_AND);}
+"||"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LOGICAL_OR);}
+"&"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, BITWISE_AND);}
+"|"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, BITWISE_OR);}
+"!"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LOGICAL_NOT);}
+
+"<<"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, LEFT_SHIFT);}
+">>"	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, RIGHT_SHIFT);}
+
+
+";"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, SEMICOLON);}
+","		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, COMMA);}
+"{" 	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, O_BRACES);}
+"}" 	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, C_BRACES);}
+"("		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, O_PARENTHESES);}
+")"		{printf("%d:\t%-10s : %3d\n", yylineno, yytext, C_PARENTHESES);}
+"[" 	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, O_BRACKETS);}
+"]" 	{printf("%d:\t%-10s : %3d\n", yylineno, yytext, C_BRACKETS);}
+
+.   	;
 
 %%
 
