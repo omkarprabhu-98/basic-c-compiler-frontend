@@ -31,8 +31,8 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 %%
 
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
-<HEADERFILESTATE>("<"{alphabet}+".h>")("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); yylineno++; BEGIN INITIAL;}
-<HEADERFILESTATE>(["]{alphabet}+".h"["])("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); yylineno++; BEGIN INITIAL;}
+<HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); yylineno++; BEGIN INITIAL;}
+<HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); yylineno++; BEGIN INITIAL;}
 <HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
@@ -40,7 +40,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 <MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 
-"//".*"\n"?	{printf("Comment: Single line\n");}
+"//".*"\n"?	{printf("Comment: Single line\n"); yylineno++;}
 
 "/*"	{printf("Comment: Multiline comment begins\n"); BEGIN MULCOMMENTSTATE;}
 <MULCOMMENTSTATE>("\n"|.)	;
