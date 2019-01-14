@@ -8,6 +8,9 @@
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+
 
 #include "token-types.h"
 #include "table.h"
@@ -31,8 +34,8 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 %%
 
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
-<HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); yylineno++; BEGIN INITIAL;}
-<HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); yylineno++; BEGIN INITIAL;}
+<HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); ++yylineno; BEGIN INITIAL;}
+<HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); ++yylineno; BEGIN INITIAL;}
 <HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
@@ -40,12 +43,13 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 <MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 
-"//".*"\n"?	{printf("Comment: Single line\n"); yylineno++;}
+"//".*"\n"?	{printf(ANSI_COLOR_BLUE "%d:\t \t\t     : %s\n", yylineno, "Single line Comment" ANSI_COLOR_RESET); ++yylineno;}
 
-"/*"	{printf("Comment: Multiline comment begins\n"); BEGIN MULCOMMENTSTATE;}
-<MULCOMMENTSTATE>("\n"|.)	;
-<MULCOMMENTSTATE>"/*"	{printf("Comment: Error Nested Multiline comment\n"); BEGIN INITIAL;}
-<MULCOMMENTSTATE>"*/"	{printf("Comment: Multiline comment ends"); BEGIN INITIAL;}
+"/*"	{printf(ANSI_COLOR_YELLOW "%d:\t \t\t     : %s\n", yylineno, "Multi-line comments begins" ANSI_COLOR_RESET); BEGIN MULCOMMENTSTATE;}
+<MULCOMMENTSTATE>("\n")	{++yylineno;}
+<MULCOMMENTSTATE>(.)	;
+<MULCOMMENTSTATE>"/*"	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error nested multiline comments" ANSI_COLOR_RESET); BEGIN INITIAL;}
+<MULCOMMENTSTATE>"*/"	{printf(ANSI_COLOR_YELLOW "%d:\t \t\t     : %s\n", yylineno, "Multi-line comments ends" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 
 "int"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, INT); insert_table(yytext, "KW", INT);}
@@ -74,7 +78,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 \"[^\"\n]*\"				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, STRING_CONST);}
 
 
-\n		{yylineno++;}
+\n		{++yylineno;}
 
 "-"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SUBTRACTION);}
 "+"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ADDITION);}
