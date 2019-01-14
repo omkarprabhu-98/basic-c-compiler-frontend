@@ -15,6 +15,7 @@ enum keywords
   FOR,
   IF,
   ELSE,
+  ELSE_IF,
   CONTINUE,
   BREAK,
   RETURN,
@@ -62,7 +63,8 @@ enum operators
   LOGICAL_NOT,
   
   LEFT_SHIFT,
-  RIGHT_SHIFT
+  RIGHT_SHIFT,
+  TERNARY
 
   //CONDITIONAL
 };

@@ -28,3 +28,16 @@ dasda
 // dsdsa
 
 long int 9Abc = 100;
+
+//ternary check
+x = 2 > 5 != 1 ? 5 < 8 && 8 > 2 ? !5 ? 10 : 20 : 30 : 40;
+//ternary check ends
+
+
+x = 5 > 8 ? 10 : 1 != 2 < 5 ? 20 : 30; 
+
+
+//ternary with errors below
+x = 5 > 8 ? 10 : 1 != 2 < 5 ? 20 : 30 :;
+
+x = 5 > 8 ? 10 ? 1 != 2 < 5 ? 20 : 30;  
