@@ -15,6 +15,9 @@
 #include "token-types.h"
 #include "table.h"
 
+int flagTernary = 0;
+int ternaryCount = 0;
+
 %}
 
 /*================== OTHER DEFINITIONS =====================*/
@@ -29,6 +32,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 %x HEADERFILESTATE
 %x MACROSTATE
 %x MULCOMMENTSTATE
+%x TERNARYSTATE
 
 /*================== REGULAR EXPRESSION FOR LEXEMS =====================*/
 %%
@@ -64,6 +68,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 "for"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FOR); insert_table(yytext, "KW", FOR);}
 "if"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, IF); insert_table(yytext, "KW", IF);}
 "else"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE); insert_table(yytext, "KW", ELSE);}
+"else if"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE); insert_table(yytext, "KW", ELSE_IF);}
 "continue"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CONTINUE); insert_table(yytext, "KW", CONTINUE);}
 "break"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, BREAK); insert_table(yytext, "KW",BREAK);}
 "return"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RETURN); insert_table(yytext, "KW", RETURN);}
@@ -106,7 +111,21 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 ">>"	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RIGHT_SHIFT);}
 
 
-";"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, SEMICOLON);}
+";"		{
+			
+			if (flagTernary > 0)
+			{
+				printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in TERNARY OPERATOR" ANSI_COLOR_RESET);
+				ternaryCount = 0;
+			} 
+			
+			for (int i=0;i<ternaryCount;i++)
+			{
+				printf("%d:\t%-20s : %3d\n", yylineno, "?:", TERNARY);
+			}
+			ternaryCount = 0;
+			printf("%d:\t%-20s : %3d\n", yylineno, yytext, SEMICOLON); 
+		}
 ","		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, COMMA);}
 "{" 	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, O_BRACES);}
 "}" 	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, C_BRACES);}
@@ -115,7 +134,16 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 "[" 	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, O_BRACKETS);}
 "]" 	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, C_BRACKETS);}
 
-.   	;
+"?"   {flagTernary+= 1;++ternaryCount;}
+":"   {	
+		flagTernary-= 1;
+		if(flagTernary < 0)
+		{   
+			printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in TERNARY OPERATOR" ANSI_COLOR_RESET);
+		} 
+
+	   }
+.  		;
 
 %%
 
