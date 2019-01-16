@@ -127,6 +127,7 @@ whitespaces  [ \t\r\f\v]+
 				printf("%d:\t%-20s : %3d\n", yylineno, "?:", CONDITIONAL);
 			}
 			ternaryCount = 0;
+			flagTernary = 0;
 			printf("%d:\t%-20s : %3d\n", yylineno, yytext, SEMICOLON); 
 		}
 ","		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, COMMA);}
