@@ -27,6 +27,7 @@ alphanumeral [A-Za-z0-9]
 hex [0-9a-f]
 digit [0-9]
 identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
+whitespaces  [ \t\r\f\v]+
 
 /* Exclusive states */
 %x HEADERFILESTATE
@@ -72,6 +73,8 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 "continue"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CONTINUE); insert_table(yytext, "KW", CONTINUE);}
 "break"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, BREAK); insert_table(yytext, "KW",BREAK);}
 "return"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RETURN); insert_table(yytext, "KW", RETURN);}
+
+{whitespaces}	;
 
 ({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
 ({identifier})				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ID); insert_table(yytext, "ID", ID);}
@@ -143,7 +146,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 		} 
 
 	   }
-.  		;
+.		{printf(ANSI_COLOR_RED "%d:\t%-20s    : %s\n", yylineno, yytext, "Error invalid character" ANSI_COLOR_RESET);};
 
 %%
 
