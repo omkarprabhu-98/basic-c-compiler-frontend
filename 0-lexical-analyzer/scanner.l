@@ -34,6 +34,7 @@ whitespaces  [ \t\r\f\v]+
 %x MACROSTATE
 %x MULCOMMENTSTATE
 %x TERNARYSTATE
+%x STRINGCONSTSTATE
 
 /*================== REGULAR EXPRESSION FOR LEXEMS =====================*/
 %%
@@ -83,8 +84,10 @@ whitespaces  [ \t\r\f\v]+
 [+\-]?[0][x|X]{hex}+[lLuU]?	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, HEX_CONST);}
 [+\-]?{digit}+[lLuU]?		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, INT_CONST);}
 [+\-]?{digit}+[.]{digit}+	{printf("%d:\t%-20s : %3d\n", yylineno, yytext, REAL_CONST);}
-\"[^\"\n]*\"				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, STRING_CONST);}
-
+\"							{BEGIN STRINGCONSTSTATE;}
+<STRINGCONSTSTATE>\"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, STRING_CONST); BEGIN INITIAL;}
+<STRINGCONSTSTATE>\n		{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in string constant" ANSI_COLOR_RESET); ++yylineno; BEGIN INITIAL;}
+<STRINGCONSTSTATE>.			;
 
 \n		{++yylineno;}
 
