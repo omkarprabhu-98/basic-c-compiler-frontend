@@ -40,8 +40,8 @@ whitespaces  [ \t\r\f\v]+
 %%
 
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
-<HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); ++yylineno; BEGIN INITIAL;}
-<HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\r\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); ++yylineno; BEGIN INITIAL;}
+<HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file <>"); ++yylineno; BEGIN INITIAL;}
+<HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\n")	{yytext[yyleng-2] = '\0'; printf("%d:\t%-20s : %3s\n", yylineno, yytext, "header file \"\""); ++yylineno; BEGIN INITIAL;}
 <HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
@@ -77,7 +77,6 @@ whitespaces  [ \t\r\f\v]+
 
 {whitespaces}	;
 
-({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
 ({identifier})				{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ID); insert_table(yytext, "ID", ID);}
 
 
@@ -88,6 +87,8 @@ whitespaces  [ \t\r\f\v]+
 <STRINGCONSTSTATE>\"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, STRING_CONST); BEGIN INITIAL;}
 <STRINGCONSTSTATE>\n		{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in string constant" ANSI_COLOR_RESET); ++yylineno; BEGIN INITIAL;}
 <STRINGCONSTSTATE>.			;
+
+({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
 
 \n		{++yylineno;}
 
