@@ -64,9 +64,9 @@ enum operators
   
   LEFT_SHIFT,
   RIGHT_SHIFT,
-  TERNARY
+  
+  CONDITIONAL
 
-  //CONDITIONAL
 };
 
 enum constants

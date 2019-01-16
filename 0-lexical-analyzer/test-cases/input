@@ -1,0 +1,43 @@
+#include <stdio.h>
+#  include   "stdio.h"
+
+
+#include "sda.h>
+
+long int c;
+for for;
+
+int a = b;
+float x = 12;
+long long int = 14;
+
+short _asdf8900_adsf = 90;
+short A_adsf = 100;
+
+int b,a=10;b = a;
+9bc = a;
+
+/*
+
+dsd
+
+dasda
+
+*/
+
+// dsdsa
+
+long int 9Abc = 100;
+
+//ternary check
+x = 2 > 5 != 1 ? 5 < 8 && 8 > 2 ? !5 ? 10 : 20 : 30 : 40;
+//ternary check ends
+
+
+x = 5 > 8 ? 10 : 1 != 2 < 5 ? 20 : 30; 
+
+
+//ternary with errors below
+x = 5 > 8 ? 10 : 1 != 2 < 5 ? 20 : 30 :;
+
+x = 5 > 8 ? 10 ? 1 != 2 < 5 ? 20 : 30;  

@@ -115,13 +115,13 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 			
 			if (flagTernary > 0)
 			{
-				printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in TERNARY OPERATOR" ANSI_COLOR_RESET);
+				printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in CONDITIONAL OPERATOR" ANSI_COLOR_RESET);
 				ternaryCount = 0;
 			} 
 			
 			for (int i=0;i<ternaryCount;i++)
 			{
-				printf("%d:\t%-20s : %3d\n", yylineno, "?:", TERNARY);
+				printf("%d:\t%-20s : %3d\n", yylineno, "?:", CONDITIONAL);
 			}
 			ternaryCount = 0;
 			printf("%d:\t%-20s : %3d\n", yylineno, yytext, SEMICOLON); 
@@ -139,7 +139,7 @@ identifier ({alphabet}|_)({alphabet}|{digit}|_){0,31}
 		flagTernary-= 1;
 		if(flagTernary < 0)
 		{   
-			printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in TERNARY OPERATOR" ANSI_COLOR_RESET);
+			printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in CONDITIONAL OPERATOR" ANSI_COLOR_RESET);
 		} 
 
 	   }
