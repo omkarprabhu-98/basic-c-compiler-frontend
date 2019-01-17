@@ -35,4 +35,7 @@ int main () {
     else if (aa[0] > 1) {
         printf("Hello world > 1 ");
     }
+    else {
+        printf("here");
+    }
 }

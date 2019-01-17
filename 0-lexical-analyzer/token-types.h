@@ -13,6 +13,7 @@ enum keywords
   FLOAT,
   DOUBLE,
   FOR,
+  WHILE,
   IF,
   ELSE,
   ELSE_IF,

@@ -1,3 +1,4 @@
+// error 
 #include <stdio.h>
 
 // main function of the program

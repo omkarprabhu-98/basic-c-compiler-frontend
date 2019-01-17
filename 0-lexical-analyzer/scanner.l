@@ -68,9 +68,10 @@ whitespaces  [ \t\r\f\v]+
 "float"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FLOAT); insert_table(yytext, "KW", FLOAT);}
 "double"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, DOUBLE); insert_table(yytext, "KW", DOUBLE);}
 "for"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, FOR); insert_table(yytext, "KW", FOR);}
+"while"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, WHILE); insert_table(yytext, "KW", WHILE);}
 "if"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, IF); insert_table(yytext, "KW", IF);}
 "else"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE); insert_table(yytext, "KW", ELSE);}
-"else if"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE); insert_table(yytext, "KW", ELSE_IF);}
+"else if"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, ELSE_IF); insert_table(yytext, "KW", ELSE_IF);}
 "continue"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, CONTINUE); insert_table(yytext, "KW", CONTINUE);}
 "break"			{printf("%d:\t%-20s : %3d\n", yylineno, yytext, BREAK); insert_table(yytext, "KW",BREAK);}
 "return"		{printf("%d:\t%-20s : %3d\n", yylineno, yytext, RETURN); insert_table(yytext, "KW", RETURN);}
