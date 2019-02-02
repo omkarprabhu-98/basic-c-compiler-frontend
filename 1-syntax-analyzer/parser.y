@@ -16,6 +16,8 @@ void yyerror(char *);
 
 // TOKEN DECLARATION
 
+%token IDENTIFIER 
+
 // keywords
 %token IF ELSE ELSE_IF FOR WHILE CONTINUE BREAK RETURN
 
@@ -28,6 +30,8 @@ void yyerror(char *);
 // relational operators
 %token EQUALS LESS_THAN GREATER_THAN NOT_EQUAL LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
 
+// constants
+%token INT_CONST STRING_CONST HEX_CONST REAL_CONST
 
 // types
 
@@ -36,21 +40,59 @@ void yyerror(char *);
 %left LOGICAL_OR
 %left LOGICAL_AND
 %left EQUALS NOT_EQUAL
-%left LESS_THAN, GREATER_THAN, LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
+%left LESS_THAN GREATER_THAN LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
 %left '+' '-'
 %left '*' '/' '%'
 %right '!'
 
 
-%start starter
+%start begin
 
 %%
 
-starter: starter builder 
-        | builder
+/* init production */
+begin: begin unit 
+        | unit
         ;
+/* unit derives declaration statements and function blocks */
+unit: function
+		;
 
-        
+
+/* Production rule for functions */
+function: type IDENTIFIER '(' argument_list ')'
+		;
+
+/* Production rule for argument list */
+argument_list: argument type IDENTIFIER
+				| 
+				;
+/* comma separated arguments */
+argument: type IDENTIFIER ',' argument
+		|
+		;
+
+
+
+
+/* Production rule for sign or type specifiers */
+type: sign_specifier 
+	| type_specifier
+	;
+/* Production rule sign specifiers */
+sign_specifier: UNSIGNED
+				| SIGNED
+				;
+/* Production rule data types */
+type_specifier: INT
+				| SHORT
+				| LONG_LONG
+				| LONG
+				| CHAR
+				| FLOAT
+				| DOUBLE
+				;
+
 
 %%
 

@@ -1,0 +1,18 @@
+/* production rule for block of code or scope */
+block: '{' block segment '}'
+		;
+
+/* production rule for a C segment */
+segment: if_segment
+		| 
+		;
+
+/* if else-if production */
+if_segment: if_segment_unmatched
+			| if_segment_matched
+			;
+if_segment_matched: IF '('  ')' '{' if_segment_matched '}' ELSE '{' if_segment_matched '}' 
+					| segment
+					;
+if_segment_unmatched: IF '('  ')' '{' if_segment '}'
+					| IF '('  ')' '{' if_segment_matched '}' ELSE '{' if_segment_unmatched '}'

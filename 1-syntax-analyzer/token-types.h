@@ -24,7 +24,7 @@ enum keywords
 
 enum identifiers
 {
-  ID=200
+  IDENTIFIER=200
 };
 
 enum punctuators

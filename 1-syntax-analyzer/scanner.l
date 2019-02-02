@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include "y.tab.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 // #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -79,8 +80,8 @@ whitespaces  [ \t\r\f\v]+
 {whitespaces}	;
 
 
-({identifier})		{yylval.ptr = insert(yytext, ID); 
-					return ID;}
+({identifier})		{yylval.ptr = insert(yytext, IDENTIFIER); 
+					return IDENTIFIER;}
 
 
 [+\-]?[0][x|X]{hex}+[lLuU]?	{return HEX_CONST;}
@@ -96,27 +97,7 @@ whitespaces  [ \t\r\f\v]+
 
 \n		{++yylineno;}
 
-"-"		{return SUBTRACTION;}
-"+"		{return ADDITION;}
-"*"		{return MULTIPLICATION;}
-"/"		{return DIVISION;}
-"%"		{return MODULO;}
-"^"		{return POWER;}
-"=="	{return EQUALS;}
-"<="	{return LESS_THAN_EQUAL_TO;}
-">="	{return GREATER_THAN_EQUAL_TO;}
-"<"		{return LESS_THAN;}
-">"		{return GREATER_THAN;}
-"!="	{return NOT_EQUAL;}
-"="		{return ASSIGN;}
-"&&"	{return LOGICAL_AND;}
-"||"	{return LOGICAL_OR;}
-"&"		{return BITWISE_AND;}
-"|"		{return BITWISE_OR;}
-"!"		{return LOGICAL_NOT;}
 
-"<<"	{return LEFT_SHIFT;}
-">>"	{return RIGHT_SHIFT}
 
 %%
 
