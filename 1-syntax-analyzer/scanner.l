@@ -97,7 +97,7 @@ whitespaces  [ \t\r\f\v]+
 
 \n		{++yylineno;}
 
-
+. {return yytext[0];}
 
 %%
 

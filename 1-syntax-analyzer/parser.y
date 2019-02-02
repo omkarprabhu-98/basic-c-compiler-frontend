@@ -68,21 +68,17 @@ function:
 	type IDENTIFIER '(' argument_list ')'
 	;
 
-argument_list: 
-	arguments
-    |
-    ;
+/* Production rule for argument list */
+argument_list:
+	argument type IDENTIFIER
+	| 
+	;
+/* comma separated arguments */
+argument: 
+	type IDENTIFIER ',' argument
+	|
+	;
 
-/* arguments are comma separated TYPE ID pairs */
-arguments: 
-	arguments ',' arg
-    |arg
-    ;
-
- /* Each arg is a TYPE ID pair */
-arg: 
-	type IDENTIFIER
-   ;
 
 
 /* Production rule for sign or type specifiers */
