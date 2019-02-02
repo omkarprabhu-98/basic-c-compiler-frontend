@@ -10,7 +10,7 @@ void yyerror(char *);
 
 %union {
     double dval;
-    table * ptr;
+    struct table * ptr;
     int ival;
 }
 
