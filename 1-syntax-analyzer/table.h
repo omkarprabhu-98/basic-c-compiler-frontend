@@ -69,10 +69,11 @@ table * insert (table ** header, char * lexeme, int token_type) {
 }
 
 void display (table ** header) {
+	printf("\n\nSymbol Table \n\n");
     for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
         table * ptr = header[i];
         while(ptr!=NULL) {
-            printf("\n %s %d",ptr->lexeme, ptr->token_type);
+            printf("%s %d\n",ptr->lexeme, ptr->token_type);
             ptr = ptr->next;
         }
     }

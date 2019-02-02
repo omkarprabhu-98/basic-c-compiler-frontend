@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "table.h"
 
+table ** symbol_table;
+
 int yylex(void);
 void yyerror(char *);
 %}
@@ -10,7 +12,7 @@ void yyerror(char *);
 
 %union {
     double dval;
-    struct table * ptr;
+    struct table_entry * ptr;
     int ival;
 }
 
@@ -51,54 +53,72 @@ void yyerror(char *);
 %%
 
 /* init production */
-begin: begin unit 
-        | unit
-        ;
+begin: 
+	begin unit 
+	| unit
+	;
 /* unit derives declaration statements and function blocks */
-unit: function
-		;
+unit: 
+	function
+	;
 
 
 /* Production rule for functions */
-function: type IDENTIFIER '(' argument_list ')'
-		;
+function: 
+	type IDENTIFIER '(' argument_list ')'
+	;
 
-/* Production rule for argument list */
-argument_list: argument type IDENTIFIER
-				| 
-				;
-/* comma separated arguments */
-argument: type IDENTIFIER ',' argument
-		|
-		;
+argument_list: 
+	arguments
+    |
+    ;
 
+/* arguments are comma separated TYPE ID pairs */
+arguments: 
+	arguments ',' arg
+    |arg
+    ;
 
+ /* Each arg is a TYPE ID pair */
+arg: 
+	type IDENTIFIER
+   ;
 
 
 /* Production rule for sign or type specifiers */
-type: sign_specifier 
+type: 
+	sign_specifier 
 	| type_specifier
 	;
 /* Production rule sign specifiers */
-sign_specifier: UNSIGNED
-				| SIGNED
-				;
+sign_specifier: 
+	UNSIGNED
+	| SIGNED
+	;
 /* Production rule data types */
-type_specifier: INT
-				| SHORT
-				| LONG_LONG
-				| LONG
-				| CHAR
-				| FLOAT
-				| DOUBLE
-				;
+type_specifier: 
+	INT
+	| SHORT
+	| LONG_LONG
+	| LONG
+	| CHAR
+	| FLOAT
+	| DOUBLE
+	;
 
 
 %%
 
+#include "lex.yy.c"
+
 int main () {
-    table ** symbol_table = create_table();
+	symbol_table = create_table();
+
     yyparse();
     display(symbol_table);
     return 0;
+}
+
+void yyerror(char *s) { 
+    fprintf(stderr, "Line %d: %s\n", yylineno, s); 
 }

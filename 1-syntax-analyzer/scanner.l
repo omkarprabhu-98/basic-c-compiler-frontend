@@ -80,7 +80,7 @@ whitespaces  [ \t\r\f\v]+
 {whitespaces}	;
 
 
-({identifier})		{yylval.ptr = insert(yytext, IDENTIFIER); 
+{identifier}		{yylval.ptr = insert(symbol_table, yytext, IDENTIFIER); 
 					return IDENTIFIER;}
 
 
@@ -103,8 +103,3 @@ whitespaces  [ \t\r\f\v]+
 
 /*================== MAIN AND OTHER FUNCTIONS =====================*/
 int yywrap() {return 1;}
-
-int main() {
-	yylex();	
-	return 0;
-}

@@ -16,3 +16,15 @@ if_segment_matched: IF '('  ')' '{' if_segment_matched '}' ELSE '{' if_segment_m
 					;
 if_segment_unmatched: IF '('  ')' '{' if_segment '}'
 					| IF '('  ')' '{' if_segment_matched '}' ELSE '{' if_segment_unmatched '}'
+
+
+/* Production rule for argument list */
+argument_list:
+	argument type IDENTIFIER
+	| 
+	;
+/* comma separated arguments */
+argument: 
+	type IDENTIFIER ',' argument
+	|
+	;

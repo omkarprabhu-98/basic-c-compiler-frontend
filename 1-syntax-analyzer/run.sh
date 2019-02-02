@@ -5,5 +5,5 @@ set -e
 
 yacc -d parser.y
 lex scanner.l
-cc y.tab.c lex.yy.c
+cc y.tab.c
 ./a.out < $1
