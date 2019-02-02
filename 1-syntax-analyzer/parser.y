@@ -10,7 +10,7 @@ void yyerror(char *);
 
 %union {
     double dval;
-    sym_ptr* sp;
+    table * ptr;
     int ival;
 }
 
@@ -55,6 +55,8 @@ starter: starter builder
 %%
 
 int main () {
+    table ** symbol_table = create_table();
     yyparse();
+    display(symbol_table);
     return 0;
 }

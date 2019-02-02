@@ -79,7 +79,8 @@ whitespaces  [ \t\r\f\v]+
 {whitespaces}	;
 
 
-({identifier})		{insert_table(yytext, "ID", ID); return ID;}
+({identifier})		{yylval.ptr = insert(yytext, ID); 
+					return ID;}
 
 
 [+\-]?[0][x|X]{hex}+[lLuU]?	{return HEX_CONST;}

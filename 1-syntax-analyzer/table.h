@@ -1,54 +1,79 @@
-struct table {
-    char    *lexeme;
-    char    *type;
-    int     id;
-    struct table *next;
+#include <string.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+struct table_entry {
+    char * lexeme;
+    int token_type;
+    struct table_entry * next;
 };
 
-struct table *head = NULL;
+typedef struct table_entry table;
+#define HASH_TABLE_SIZE 100
 
-void insert_table (char *lexeme, char *type, int id) {
-    if(head == NULL) {
-        
-        // First Entry
-        struct table *newNode = (struct table *) malloc(sizeof(struct table));
-        newNode->next = NULL;
-        head = newNode;
-        newNode->lexeme = (char *) malloc(sizeof(char)*strlen(lexeme));
-        newNode->type = (char *) malloc(sizeof(char)*strlen(type));
-        strcpy(newNode->lexeme,lexeme);
-        strcpy(newNode->type,type);
-        newNode->id = id;
+table ** create_table (void) {
+    table ** header = NULL;
+    header = (table **) malloc(sizeof(table *) * HASH_TABLE_SIZE);
+    for( int i = 0; i < HASH_TABLE_SIZE; ++i) {
+        header[i] = NULL;
     }
-    else{
-        struct table* current = head;
-        // Check for existing values
-        while(1) {
-            if(strcmp(current->lexeme,lexeme) == 0) return;
-            // Value exists
-            if(current->next == NULL) break;
-            current = current->next;
-        }
-        struct table *newNode = (struct table *) malloc(sizeof(struct table));
-        newNode->next = NULL;
-        newNode->lexeme = (char *) malloc(sizeof(char)*strlen(lexeme));
-        newNode->type = (char *) malloc(sizeof(char)*strlen(type));
-        strcpy(newNode->lexeme,lexeme);
-        strcpy(newNode->type,type);
-        newNode->id = id;
-        current->next = newNode;
-    }
+    return header;
 }
 
-void print_table () {
-    struct table *current = head;
-    printf("\n======================== SYMBOL TABLE ======================\n");
+unsigned int hash( char *lexeme ) {
+    unsigned int i;
+    unsigned int hash;
+
+	/* Apply jenkin's hash function
+	* https://en.wikipedia.org/wiki/Jenkins_hash_function#one-at-a-time
+	*/
+
+	for ( hash = i = 0; i < strlen(lexeme); ++i ) {
+        hash += lexeme[i];
+        hash += ( hash << 10 );
+        hash ^= ( hash >> 6 );
+    }
+	hash += ( hash << 3 );
+	hash ^= ( hash >> 11 );
+    hash += ( hash << 15 );
+
+	return hash % HASH_TABLE_SIZE;
+}
+
+int search (table ** header,char * lexeme) {
+    unsigned int hashed = hash(lexeme);
+    table * look = header[hashed];
+    while(look!=NULL && strcmp(look->lexeme, lexeme) != 0) {
+        look = look->next;
+    }
+    if(look == NULL) {
+        return 0;
+    }
+    return 1;
+}
+
+table * insert (table ** header, char * lexeme, int token_type) {
+    if(search(header, lexeme))
+        return NULL;
     
-    printf("%-20s\t%-30s\t%-30s\n", "LEXEME", "TYPE", "Id");
-    printf("%-20s\t%-30s\t%-30s\n", "======", "====", "==");
-    printf("\n");
-    while(current != NULL) {    
-        printf("%-20s\t%-30s\t%-30d\n", current->lexeme, current->type, current->id);
-        current = current->next;
+    table * new_entry = NULL;
+    unsigned int hashed = hash(lexeme);
+    new_entry = (table *) malloc(sizeof(table));
+    new_entry->lexeme = (char *) malloc(sizeof(lexeme));
+    strcpy(new_entry->lexeme, lexeme);
+    new_entry->token_type = token_type;
+    new_entry->next = header[hashed];
+    header[hashed] = new_entry;
+    return header[hashed];
+}
+
+void display (table ** header) {
+    for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
+        table * ptr = header[i];
+        while(ptr!=NULL) {
+            printf("\n %s %d",ptr->lexeme, ptr->token_type);
+            ptr = ptr->next;
+        }
     }
 }
