@@ -154,9 +154,11 @@ for_segment:
 
 declaration:
 	type IDENTIFIER identifier_lists ';'
+	| type array identifier_lists ';'
 	;
 identifier_lists:
 	',' IDENTIFIER identifier_lists
+	| ',' array
 	|
 	;
 
@@ -198,7 +200,14 @@ expression:
 	assignment_expression 
 	;
 
+array:
+	IDENTIFIER '[' INT_CONST ']' square_brackets
+	;
 
+square_brackets:
+	'[' INT_CONST ']' square_brackets
+	|
+	;
 
 %%
 

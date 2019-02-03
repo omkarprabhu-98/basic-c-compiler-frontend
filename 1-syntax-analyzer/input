@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 int xyz () {
 	if () {
 
@@ -24,8 +26,8 @@ int xyz () {
 
 	a = (a <= a >= b) + ((a) - (!b));
 
-	45 = (a*b);
-
+	//45 = (a*b);
+	int aksahsa[10][20], abn;
 
 }
 
