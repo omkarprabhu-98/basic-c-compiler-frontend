@@ -123,6 +123,7 @@ segments:
 segment: 
 	if_segment 
 	| for_segment
+	| while_segment
 	| declaration
 	| expression
 	| CONTINUE ';'
@@ -134,21 +135,26 @@ segment:
 
 /* if else-if production */
 if_segment: 
-	IF '(' ')' block 
-	| IF '(' ')' block ELSE block
-	| IF '(' ')' block else_if_segment 
+	IF '(' arithmetic_expression ')' block 
+	| IF '(' arithmetic_expression ')' block ELSE block
+	| IF '(' arithmetic_expression ')' block else_if_segment 
 	;
 else_if_segment:
-	ELSE_IF '(' ')' block else_ifs ELSE block
+	ELSE_IF '(' arithmetic_expression ')' block else_ifs ELSE block
 	;
 else_ifs:
-	ELSE_IF '(' ')' block else_ifs
+	ELSE_IF '(' arithmetic_expression ')' block else_ifs
 	|
 	;
 
 /* for segment production */
 for_segment:
-	FOR '('  ')' block
+	FOR '(' expression arithmetic_expression ';' assignment_expression ')' block
+	;
+
+/* while segment production */
+while_segment:
+	WHILE '(' arithmetic_expression ')' block
 	;
 
 
@@ -194,10 +200,10 @@ comparison_expression:
 	;
 /*production rules for assignment expression*/
 assignment_expression:
-	IDENTIFIER '=' arithmetic_expression ';'
+	IDENTIFIER '=' arithmetic_expression
 	;
 expression:
-	assignment_expression 
+	assignment_expression ';'
 	;
 
 array:
