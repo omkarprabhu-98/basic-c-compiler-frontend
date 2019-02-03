@@ -97,7 +97,14 @@ whitespaces  [ \t\r\f\v]+
 
 \n		{++yylineno;}
 
-. {return yytext[0];}
+"&&"	{return LOGICAL_AND;}
+"||"	{return LOGICAL_OR;}
+"<="	{return LESS_THAN_EQUAL_TO;}
+">="	{return GREATER_THAN_EQUAL_TO;}
+"=="	{return EQUALS;}
+"!="	{return NOT_EQUAL;}
+
+. {return *yytext;}
 
 %%
 

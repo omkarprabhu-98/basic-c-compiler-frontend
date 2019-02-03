@@ -28,3 +28,45 @@ argument:
 	type IDENTIFIER ',' argument
 	|
 	;
+
+
+	
+
+arithmetic_expression: 
+	arithmetic_expression '+' arithmetic_expression
+	| arithmetic_expression '-' arithmetic_expression
+	| arithmetic_expression '*' arithmetic_expression
+	| arithmetic_expression '/' arithmetic_expression
+	| arithmetic_expression '^' arithmetic_expression
+	| arithmetic_expression '%' arithmetic_expression
+	| arithmetic_expression "&&" arithmetic_expression
+	| arithmetic_expression "||" arithmetic_expression
+	| arithmetic_expression '&' arithmetic_expression
+	| arithmetic_expression '|' arithmetic_expression
+	| '(' arithmetic_expression ')'
+	| '!' arithmetic_expression
+	| IDENTIFIER
+	| HEX_CONST
+	| STRING_CONST
+	| INT_CONST 
+	| REAL_CONST
+	| comparison_expression
+	;
+
+comparison_expression:
+	arithmetic_expression "<=" arithmetic_expression
+	| arithmetic_expression ">=" arithmetic_expression
+	| arithmetic_expression "==" arithmetic_expression
+	| arithmetic_expression '<' arithmetic_expression
+	| arithmetic_expression '>' arithmetic_expression
+	;
+
+/*production rules for assignment expression*/
+assignment_expression:
+	IDENTIFIER '=' arithmetic_expression 
+	;
+
+expression:
+	arithmetic_expression 
+	| assignment_expression 
+	;

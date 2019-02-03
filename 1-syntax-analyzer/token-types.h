@@ -46,7 +46,6 @@ enum operators
   MULTIPLICATION,
   DIVISION,
   MODULO,
-  POWER,
   
   ASSIGN,
   
@@ -62,6 +61,7 @@ enum operators
   LOGICAL_AND,
   LOGICAL_OR,
   LOGICAL_NOT,
+  BITWISE_XOR,
   
   LEFT_SHIFT,
   RIGHT_SHIFT,

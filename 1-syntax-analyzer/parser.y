@@ -39,13 +39,19 @@ void yyerror(char *);
 
 %left ','
 %right '='
-%left LOGICAL_OR
 %left LOGICAL_AND
+%left LOGICAL_OR 
+%left '|'
+%left '^'
+%left '&'
 %left EQUALS NOT_EQUAL
-%left LESS_THAN GREATER_THAN LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
+%left '>' '<' LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
+%left ">>" "<<" 
 %left '+' '-'
 %left '*' '/' '%'
 %right '!'
+%left '(' ')' '[' ']'
+
 
 
 %start begin
@@ -60,12 +66,13 @@ begin:
 /* unit derives declaration statements and function blocks */
 unit: 
 	function
+	| declaration
 	;
 
 
 /* Production rule for functions */
 function: 
-	type IDENTIFIER '(' argument_list ')'
+	type IDENTIFIER '(' argument_list ')' block 
 	;
 
 /* Production rule for argument list */
@@ -100,6 +107,97 @@ type_specifier:
 	| FLOAT
 	| DOUBLE
 	;
+
+
+/* production rule for block of code or scope */
+block:
+	'{' segments '}'
+	;
+segments: 
+	segments segment
+	|
+	;
+
+
+/* production rule for a C segment */
+segment: 
+	if_segment 
+	| for_segment
+	| declaration
+	| expression
+	| CONTINUE ';'
+	| BREAK ';'
+	| RETURN HEX_CONST ';'
+	| RETURN REAL_CONST ';'
+	| RETURN INT_CONST ';'
+	;
+
+/* if else-if production */
+if_segment: 
+	IF '(' ')' block 
+	| IF '(' ')' block ELSE block
+	| IF '(' ')' block else_if_segment 
+	;
+else_if_segment:
+	ELSE_IF '(' ')' block else_ifs ELSE block
+	;
+else_ifs:
+	ELSE_IF '(' ')' block else_ifs
+	|
+	;
+
+/* for segment production */
+for_segment:
+	FOR '('  ')' block
+	;
+
+
+declaration:
+	type IDENTIFIER identifier_lists ';'
+	;
+identifier_lists:
+	',' IDENTIFIER identifier_lists
+	|
+	;
+
+
+/*arithmetic expression production rules*/
+arithmetic_expression: 
+	arithmetic_expression '+' arithmetic_expression
+	| arithmetic_expression '-' arithmetic_expression
+	| arithmetic_expression '*' arithmetic_expression
+	| arithmetic_expression '/' arithmetic_expression
+	| arithmetic_expression '^' arithmetic_expression
+	| arithmetic_expression '%' arithmetic_expression
+	| arithmetic_expression LOGICAL_AND arithmetic_expression
+	| arithmetic_expression LOGICAL_OR arithmetic_expression
+	| arithmetic_expression '&' arithmetic_expression
+	| arithmetic_expression '|' arithmetic_expression
+	| '(' arithmetic_expression ')'
+	| '!' arithmetic_expression
+	| IDENTIFIER
+	| HEX_CONST
+	| STRING_CONST
+	| INT_CONST 
+	| REAL_CONST
+	| comparison_expression
+	;
+comparison_expression:
+	arithmetic_expression GREATER_THAN_EQUAL_TO arithmetic_expression
+	| arithmetic_expression LESS_THAN_EQUAL_TO arithmetic_expression
+	| arithmetic_expression EQUALS arithmetic_expression
+	| arithmetic_expression NOT_EQUAL arithmetic_expression
+	| arithmetic_expression '<' arithmetic_expression
+	| arithmetic_expression '>' arithmetic_expression
+	;
+/*production rules for assignment expression*/
+assignment_expression:
+	IDENTIFIER '=' arithmetic_expression ';'
+	;
+expression:
+	assignment_expression 
+	;
+
 
 
 %%
