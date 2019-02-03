@@ -70,13 +70,12 @@ function:
 
 /* Production rule for argument list */
 argument_list:
-	argument type IDENTIFIER
+	arguments 
 	| 
 	;
-/* comma separated arguments */
-argument: 
-	type IDENTIFIER ',' argument
-	|
+arguments:
+	type IDENTIFIER
+	| type IDENTIFIER ',' arguments
 	;
 
 
