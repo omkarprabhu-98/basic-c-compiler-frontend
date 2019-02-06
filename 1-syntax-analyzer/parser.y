@@ -9,7 +9,6 @@ int yylex(void);
 void yyerror(char *);
 %}
 
-
 %union {
     double dval;
     struct table_entry * ptr;
@@ -36,7 +35,6 @@ void yyerror(char *);
 %token INT_CONST STRING_CONST HEX_CONST REAL_CONST
 
 // types
-
 %left ','
 %right '='
 %left LOGICAL_AND
@@ -51,8 +49,6 @@ void yyerror(char *);
 %left '*' '/' '%'
 %right '!'
 %left '(' ')' '[' ']'
-
-
 
 %start begin
 
@@ -84,7 +80,6 @@ arguments:
 	type IDENTIFIER
 	| type IDENTIFIER ',' arguments
 	;
-
 
 
 /* Production rule for sign or type specifiers */
@@ -158,6 +153,7 @@ while_segment:
 	;
 
 
+/* declaration statements */
 declaration:
 	type IDENTIFIER identifier_lists ';'
 	| type array identifier_lists ';'
@@ -206,6 +202,7 @@ expression:
 	assignment_expression ';'
 	;
 
+
 array:
 	IDENTIFIER '[' INT_CONST ']' square_brackets
 	;
@@ -217,11 +214,11 @@ square_brackets:
 
 %%
 
+// links scanner code  
 #include "lex.yy.c"
 
 int main () {
 	symbol_table = create_table();
-
     yyparse();
     display(symbol_table);
     return 0;

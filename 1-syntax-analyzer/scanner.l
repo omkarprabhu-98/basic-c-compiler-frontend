@@ -2,22 +2,12 @@
 %{
 	
 #include <stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <string.h>
+#include <stdlib.h>
 #include "y.tab.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
-// #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
-// #define ANSI_COLOR_BLUE    "\x1b[34m"
-// #define ANSI_COLOR_YELLOW  "\x1b[33m"
-
-
-// #include "token-types.h"
-// #include "table.h"
-
-// int flagTernary = 0;
-// int ternaryCount = 0;
 
 %}
 
@@ -43,11 +33,11 @@ whitespaces  [ \t\r\f\v]+
 "#"[ ]*"include"[ ]*	{BEGIN HEADERFILESTATE;}
 <HEADERFILESTATE>("<"{alphabet}+".h>")(" "*)("\n")	{++yylineno; BEGIN INITIAL;}
 <HEADERFILESTATE>(["]{alphabet}+".h"["])(" "*)("\n")	{++yylineno; BEGIN INITIAL;}
-<HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL;}
+<HEADERFILESTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in header" ANSI_COLOR_RESET); BEGIN INITIAL; yyterminate();}
 
 "#"[ ]*"define"[ ]*	{BEGIN MACROSTATE;}
 <MACROSTATE>({alphanumeral}+[ ]+{alphanumeral}+)([ ]*)"\n"	{}
-<MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL;}
+<MACROSTATE>.*	{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in marco" ANSI_COLOR_RESET); BEGIN INITIAL; yyterminate();}
 
 
 "//".*"\n"?	{++yylineno;}
@@ -90,7 +80,7 @@ whitespaces  [ \t\r\f\v]+
 
 \"							{BEGIN STRINGCONSTSTATE;}
 <STRINGCONSTSTATE>\"		{return STRING_CONST; BEGIN INITIAL;}
-<STRINGCONSTSTATE>\n		{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in string constant" ANSI_COLOR_RESET); ++yylineno; BEGIN INITIAL;}
+<STRINGCONSTSTATE>\n		{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in string constant" ANSI_COLOR_RESET); ++yylineno; BEGIN INITIAL; yyterminate();}
 <STRINGCONSTSTATE>.			;
 
 ({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}

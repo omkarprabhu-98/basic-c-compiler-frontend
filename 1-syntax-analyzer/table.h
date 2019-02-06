@@ -69,11 +69,14 @@ table * insert (table ** header, char * lexeme, int token_type) {
 }
 
 void display (table ** header) {
-	printf("\n\nSymbol Table \n\n");
-    for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
-        table * ptr = header[i];
-        while(ptr!=NULL) {
-            printf("%s %d\n",ptr->lexeme, ptr->token_type);
+	printf("\n======================== SYMBOL TABLE ======================\n");
+    printf("%-20s\t%-30s\n", "LEXEME", "Id");
+    printf("%-20s\t%-30s\n", "======", "==");
+    printf("\n");
+	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
+		table * ptr = header[i];
+		while(ptr!=NULL) {
+            printf("%-20s\t%-30d\n",ptr->lexeme, ptr->token_type);
             ptr = ptr->next;
         }
     }
