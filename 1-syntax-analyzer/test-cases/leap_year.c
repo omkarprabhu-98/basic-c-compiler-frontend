@@ -30,6 +30,7 @@ int main()
 { 
     int year;
 	year = 2000; 
-   
+	checkYear(year);
+
     return 0; 
 } 

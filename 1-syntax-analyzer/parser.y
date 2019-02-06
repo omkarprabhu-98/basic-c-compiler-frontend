@@ -119,6 +119,7 @@ segment:
 	if_segment 
 	| for_segment
 	| while_segment
+	| func_call
 	| declaration
 	| expression
 	| CONTINUE ';'
@@ -151,6 +152,19 @@ for_segment:
 /* while segment production */
 while_segment:
 	WHILE '(' arithmetic_expression ')' block
+	;
+
+/* Function call */ 
+func_call:
+	IDENTIFIER '(' parameter_list ')' ';'
+	;
+parameter_list: 
+	parameters
+	|
+	;
+parameters: 
+	IDENTIFIER ',' parameter_list
+	| IDENTIFIER 
 	;
 
 
