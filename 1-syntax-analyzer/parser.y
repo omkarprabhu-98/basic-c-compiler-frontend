@@ -126,6 +126,7 @@ segment:
 	| RETURN HEX_CONST ';'
 	| RETURN REAL_CONST ';'
 	| RETURN INT_CONST ';'
+	| RETURN IDENTIFIER ';'
 	;
 
 /* if else-if production */
