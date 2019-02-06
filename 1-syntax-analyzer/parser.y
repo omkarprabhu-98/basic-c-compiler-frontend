@@ -156,14 +156,16 @@ while_segment:
 
 /* Function call */ 
 func_call:
-	IDENTIFIER '(' parameter_list ')' ';'
+	IDENTIFIER '=' IDENTIFIER '(' parameter_list ')' ';'
+	| type IDENTIFIER '=' IDENTIFIER '(' parameter_list ')' ';'
+	| IDENTIFIER '(' parameter_list ')' ';'
 	;
 parameter_list: 
 	parameters
 	|
 	;
 parameters: 
-	IDENTIFIER ',' parameter_list
+	IDENTIFIER ',' parameters
 	| IDENTIFIER 
 	;
 
