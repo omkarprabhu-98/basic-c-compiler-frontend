@@ -4,6 +4,10 @@
 signed var1;
 double var2;
 
+void func() {
+    return;
+}
+
 int foo()
 {
     return 10;

@@ -58,6 +58,7 @@ whitespaces  [ \t\r\f\v]+
 "unsigned"		{return UNSIGNED;}
 "float"			{return FLOAT;}
 "double"		{return DOUBLE;}
+"void"			{return VOID;}
 "for"			{return FOR;}
 "while"			{return WHILE;}
 "if"			{return IF;}

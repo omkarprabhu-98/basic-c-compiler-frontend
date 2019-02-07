@@ -23,7 +23,7 @@ void yyerror(char *);
 %token IF ELSE ELSE_IF FOR WHILE CONTINUE BREAK RETURN
 
 // data types
-%token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE
+%token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
 
 // logical opertors
 %token BITWISE_AND BITWISE_OR LOGICAL_AND LOGICAL_OR LOGICAL_NOT
@@ -101,6 +101,7 @@ type_specifier:
 	| CHAR
 	| FLOAT
 	| DOUBLE
+	| VOID
 	;
 
 
@@ -124,6 +125,7 @@ segment:
 	| expression
 	| CONTINUE ';'
 	| BREAK ';'
+	| RETURN ';'
 	| RETURN HEX_CONST ';'
 	| RETURN REAL_CONST ';'
 	| RETURN INT_CONST ';'
