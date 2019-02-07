@@ -75,9 +75,9 @@ whitespaces  [ \t\r\f\v]+
 					return IDENTIFIER;}
 
 
-[+\-]?[0][x|X]{hex}+[lLuU]?	{return HEX_CONST;}
-[+\-]?{digit}+[lLuU]?		{return INT_CONST;}
-[+\-]?{digit}+[.]{digit}+	{return REAL_CONST;}
+[+\-]?[0][x|X]{hex}+[lLuU]?	{yylval.ptr = insert(constant_table, yytext, HEX_CONST); return HEX_CONST;}
+[+\-]?{digit}+[lLuU]?		{yylval.ptr = insert(constant_table, yytext, INT_CONST); return INT_CONST;}
+[+\-]?{digit}+[.]{digit}+	{yylval.ptr = insert(constant_table, yytext, REAL_CONST); return REAL_CONST;}
 
 \"							{BEGIN STRINGCONSTSTATE;}
 <STRINGCONSTSTATE>\"		{return STRING_CONST; BEGIN INITIAL;}

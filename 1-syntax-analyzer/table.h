@@ -68,9 +68,14 @@ table * insert (table ** header, char * lexeme, int token_type) {
     return header[hashed];
 }
 
-void display (table ** header) {
-	printf("\n======================== SYMBOL TABLE ======================\n");
-    printf("%-20s\t%-30s\n", "LEXEME", "Id");
+void display (table ** header, int sym) {
+    if (sym) {
+        printf("\n======================== SYMBOL TABLE ======================\n");
+    }
+    else {
+        printf("\n======================== CONSTANT TABLE ======================\n"); 
+    }
+	printf("%-20s\t%-30s\n", "LEXEME", "Id");
     printf("%-20s\t%-30s\n", "======", "==");
     printf("\n");
 	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {

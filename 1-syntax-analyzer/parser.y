@@ -4,6 +4,7 @@
 #include "table.h"
 
 table ** symbol_table;
+table ** constant_table;
 
 int yylex(void);
 void yyerror(char *);
@@ -238,8 +239,10 @@ square_brackets:
 
 int main () {
 	symbol_table = create_table();
+	constant_table = create_table();
     yyparse();
-    display(symbol_table);
+    display(symbol_table, 1);
+	display(constant_table, 0);
     return 0;
 }
 
