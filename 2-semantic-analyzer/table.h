@@ -132,6 +132,7 @@ table* recursiveSearch (int currentScope, char* lexeme) {
  */
 void insert_args_encoding(table* func_ptr, char * global_args_encoding) {
 	func_ptr->args_encoding = (char *)malloc(sizeof(char)*strlen(global_args_encoding));
+	printf("\n\n\n%s\n\n\n", global_args_encoding);
 	strcpy(func_ptr->args_encoding, global_args_encoding);
 }
 
@@ -161,13 +162,13 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
  * Dislpay the SYMBOL table 
  */
 void display_sym_table (table ** header) {
-	printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "LEXEME", "Id", "DATATYPE", "Function", "Dimension");
-    printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "------", "--", "-------", "-------", "-------");
+	printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "LEXEME", "Id", "DATATYPE", "Function", "Dimension", "Encoding");
+    printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "------", "--", "-------", "-------", "-------", "-------");
     
 	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
 		table * ptr = header[i];
 		while(ptr!=NULL) {
-            printf("%-10s\t%-10d\t%-10d\t%-10d\t%-10d\n",ptr->lexeme, ptr->token_type, ptr->data_type, ptr->is_func, ptr->dimension);
+            printf("%-10s\t%-10d\t%-10d\t%-10d\t%-10d\t%-10s\n",ptr->lexeme, ptr->token_type, ptr->data_type, ptr->is_func, ptr->dimension, ptr->args_encoding);
             ptr = ptr->next;
         }
     }

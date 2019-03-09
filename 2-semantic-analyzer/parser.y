@@ -91,14 +91,14 @@ function:
 	type		
 	identifier	{isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;}					 
 	'(' 		{current_scope_ptr = create_scope(); isFunc = 1;}
-	argument_list 
-	')' 	{isDecl = 0;}
+	argument_list {flag_args = 1;}
+	')' 	{isDecl = 0; if (args_encoding_idx != 0) {global_args_encoding[args_encoding_idx++] = '\0'; insert_args_encoding($2, global_args_encoding); args_encoding_idx = 0; flag_args = 0;}}
 	block 
 	;
 
 /* Production rule for argument list */
 argument_list:
-	arguments {flag_args = 1;}
+	arguments 
 	| 
 	;
 arguments:
@@ -120,13 +120,13 @@ sign_specifier:
 /* Production rule data types */
 type_specifier: 
 	INT	{curr_datatype = INT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| SHORT {curr_datatype = SHORT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| LONG_LONG {curr_datatype = LONG_LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| LONG {curr_datatype = LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| CHAR {curr_datatype = CHAR; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| FLOAT {curr_datatype = FLOAT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| DOUBLE {curr_datatype = DOUBLE; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| VOID {curr_datatype = VOID; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| SHORT {curr_datatype = SHORT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 's'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| LONG_LONG {curr_datatype = LONG_LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'L'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| LONG {curr_datatype = LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'l'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| CHAR {curr_datatype = CHAR; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'c'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| FLOAT {curr_datatype = FLOAT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'f'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| DOUBLE {curr_datatype = DOUBLE; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'd'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| VOID {curr_datatype = VOID; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'v'; global_args_encoding[args_encoding_idx++] = '$';}}
 	;
 
 
