@@ -1,8 +1,12 @@
+int printf () {
+
+}
+
 int main() {
 	int a, b;
 	printf("fdf", "hello omkar prabhu");
+	printf();
+	// b = a();
 
-
-	a = 1 + '2';
-
+	return 1;
 }

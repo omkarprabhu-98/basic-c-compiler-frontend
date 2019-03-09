@@ -11,6 +11,8 @@ struct table_entry {
     int token_type;
     int data_type;
 	int is_func;
+	// If is_func, args_encoding points to encoding of arguments in heap. Else NULL
+	char * args_encoding;
 	int dimension;
     struct table_entry * next;
 };
@@ -113,7 +115,24 @@ table* recursiveSearch (int currentScope, char* lexeme) {
             currentScope = scope_table[currentScope].parent;
         }
     }
+	// global scope search
+	if(ret == NULL) {
+		for(int i = 0; i < SCOPE_TABLE_SIZE ; ++i) {
+			if(scope_table[i].header != NULL && scope_table[i].parent == -1) {
+				ret = search(scope_table[i].header, lexeme);
+				if(ret != NULL) break;
+			}
+		}
+	}
     return ret;
+}
+
+/**
+ * Insert global argument encoding into the symbol table entry for the function 
+ */
+void insert_args_encoding(table* func_ptr, char * global_args_encoding) {
+	func_ptr->args_encoding = (char *)malloc(sizeof(char)*strlen(global_args_encoding));
+	strcpy(func_ptr->args_encoding, global_args_encoding);
 }
 
 /**
@@ -131,6 +150,7 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
     new_entry->token_type = token_type;
     new_entry->data_type = data_type;
 	new_entry->is_func = 0;
+	new_entry->args_encoding = NULL;
 	new_entry->dimension = 0;
     new_entry->next = header[hashed];
     header[hashed] = new_entry;

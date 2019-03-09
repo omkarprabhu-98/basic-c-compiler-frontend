@@ -16,6 +16,12 @@ void check_type(int, int);
 int isFunc = 0;
 int isDecl = 0;
 int curr_datatype;
+
+int func_return_type;
+
+int flag_args = 0;
+char global_args_encoding[500] = {'\0'};
+int args_encoding_idx = 0;
 %}
 
 %union {
@@ -82,8 +88,8 @@ unit:
 
 /* Production rule for functions */
 function: 
-	type 
-	identifier	{isDecl = 0; $2->is_func = 1;}					 
+	type		
+	identifier	{isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;}					 
 	'(' 		{current_scope_ptr = create_scope(); isFunc = 1;}
 	argument_list 
 	')' 	{isDecl = 0;}
@@ -92,12 +98,12 @@ function:
 
 /* Production rule for argument list */
 argument_list:
-	arguments 
+	arguments {flag_args = 1;}
 	| 
 	;
 arguments:
-	type identifier
-	| type identifier ',' arguments
+	type identifier	
+	| type identifier ',' arguments 
 	;
 
 
@@ -113,14 +119,14 @@ sign_specifier:
 	;
 /* Production rule data types */
 type_specifier: 
-	INT	{curr_datatype = INT;}
-	| SHORT {curr_datatype = SHORT;}
-	| LONG_LONG {curr_datatype = LONG_LONG;}
-	| LONG {curr_datatype = LONG;}
-	| CHAR {curr_datatype = CHAR;}
-	| FLOAT {curr_datatype = FLOAT;}
-	| DOUBLE {curr_datatype = DOUBLE;}
-	| VOID {curr_datatype = VOID;}
+	INT	{curr_datatype = INT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| SHORT {curr_datatype = SHORT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| LONG_LONG {curr_datatype = LONG_LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| LONG {curr_datatype = LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| CHAR {curr_datatype = CHAR; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| FLOAT {curr_datatype = FLOAT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| DOUBLE {curr_datatype = DOUBLE; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
+	| VOID {curr_datatype = VOID; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
 	;
 
 
@@ -146,11 +152,8 @@ segment:
 	| expression
 	| CONTINUE ';'
 	| BREAK ';'
-	| RETURN ';'
-	| RETURN HEX_CONST ';'
-	| RETURN REAL_CONST ';'
-	| RETURN INT_CONST ';'
-	| RETURN identifier ';'
+	| RETURN ';' {if (VOID != func_return_type) yyerror("Incorrect return type");}
+	| RETURN arithmetic_expression ';'	{if ($2 != func_return_type) yyerror("Incorrect return type");}
 	| block
 	;
 
@@ -180,9 +183,9 @@ while_segment:
 
 /* Function call */ 
 func_call:
-	identifier '=' identifier '(' parameter_list ')' ';'
-	| type identifier '=' identifier '(' parameter_list ')' ';'
-	| identifier '(' parameter_list ')' ';'
+	identifier '=' identifier '(' parameter_list ')' ';' {if ($3->is_func == 0 || (recursiveSearch(current_scope_ptr, $3->lexeme) == NULL)) yyerror("Invalid function call");}
+	| type identifier '=' identifier '(' parameter_list ')' ';' {if ($4->is_func == 0 || (recursiveSearch(current_scope_ptr, $4->lexeme) == NULL)) yyerror("Invalid function call");}
+	| identifier '(' parameter_list ')' ';' {if ($1->is_func == 0 || (recursiveSearch(current_scope_ptr, $1->lexeme) == NULL)) yyerror("Invalid function call");}
 	;
 parameter_list: 
 	parameters
@@ -247,12 +250,10 @@ expression:
 
 
 array:
-	identifier '[' INT_CONST ']' square_brackets
-	;
-
-square_brackets:
-	'[' INT_CONST ']' square_brackets
-	|
+	identifier '[' INT_CONST ']'	{	
+										if (atoi($3->lexeme) < 1) yyerror("Array size less than 1");
+										if ($1 != NULL) $1->dimension = atoi($3->lexeme);
+									}
 	;
 
 identifier: 
@@ -266,7 +267,9 @@ identifier:
 					else {
 						// $$ = search(scope_table[current_scope_ptr].header, $1);
 						$$ = recursiveSearch(current_scope_ptr, $1);
-						if($$ == NULL) yyerror("Variable not declared"); 
+						if($$ == NULL) {
+							yyerror("Variable not declared");
+						}
 					}
 				}
 	;
@@ -286,6 +289,7 @@ int main () {
 
 void yyerror(char *s) { 
     fprintf(stderr, "Line %d: %s\n", yylineno, s); 
+	
 }
 
 void check_type(int a, int b) {
