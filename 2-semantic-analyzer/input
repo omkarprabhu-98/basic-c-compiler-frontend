@@ -1,5 +1,4 @@
 int main() {
-	int a;
-	float b;
-	a = a + b;
+	int a, b;
+	printf("fdf", "hello omkar prabhu");
 }

@@ -117,16 +117,34 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
 }
 
 /**
- * Dislpay the table 
+ * Dislpay the SYMBOL table 
  */
-void display_table (table ** header) {
+void display_sym_table (table ** header) {
+	printf("%-20s\t%-30s\t%-20s\n", "LEXEME", "Id", "DATATYPE");
+    printf("%-20s\t%-30s\t%-20s\n", "------", "--", "-------");
+    
+	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
+		table * ptr = header[i];
+		while(ptr!=NULL) {
+            printf("%-20s\t%-30d\t%-30d\n",ptr->lexeme, ptr->token_type,ptr->data_type);
+            ptr = ptr->next;
+        }
+    }
+}
+
+/**
+ * Dislpay the SYMBOL table 
+ */
+void display_const_table (table ** header) {
+	printf("\n\n======================== CONSTANT TABLE ======================\n");
+
 	printf("%-20s\t%-30s\n", "LEXEME", "Id");
     printf("%-20s\t%-30s\n", "------", "--");
     
 	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
 		table * ptr = header[i];
 		while(ptr!=NULL) {
-            printf("%-20s\t%-30d\t%-30d\n",ptr->lexeme, ptr->token_type,ptr->data_type);
+            printf("%-20s\t%-30d\n",ptr->lexeme, ptr->token_type);
             ptr = ptr->next;
         }
     }
@@ -140,7 +158,7 @@ void display_scope_table() {
     for(int i = 0; i < SCOPE_TABLE_SIZE; ++i) {
         if (scope_table[i].header == NULL) 
             return;
-        printf("===============> SCOPE LEVEL %d <===============\n", i);
-		display_table(scope_table[i].header);
+        printf("===============> LEVEL %d <===============\n", i);
+		display_sym_table(scope_table[i].header);
     }
 }

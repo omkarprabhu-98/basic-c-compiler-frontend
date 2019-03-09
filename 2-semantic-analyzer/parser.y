@@ -32,7 +32,7 @@ int curr_datatype;
 %token IF ELSE ELSE_IF FOR WHILE CONTINUE BREAK RETURN
 
 // data types
-%token <int> INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
+%token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
 
 // logical opertors
 %token BITWISE_AND BITWISE_OR LOGICAL_AND LOGICAL_OR LOGICAL_NOT
@@ -188,8 +188,10 @@ parameter_list:
 	|
 	;
 parameters: 
-	identifier ',' parameters
-	| identifier 
+	arithmetic_expression ',' parameters
+	| arithmetic_expression
+	| STRING_CONST ',' parameters
+	| STRING_CONST	
 	;
 
 
@@ -274,7 +276,7 @@ int main () {
 	scope_table[0].parent = -1;
     yyparse();
     display_scope_table();
-	//display(constant_table, 0);
+	display_const_table(constant_table);
     return 0;
 }
 

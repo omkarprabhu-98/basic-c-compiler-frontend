@@ -26,8 +26,6 @@ whitespaces  [ \t\r\f\v]+
 %x HEADERFILESTATE
 %x MACROSTATE
 %x MULCOMMENTSTATE
-%x TERNARYSTATE
-%x STRINGCONSTSTATE
 
 /*================== REGULAR EXPRESSION FOR LEXEMS =====================*/
 %%
@@ -81,10 +79,8 @@ whitespaces  [ \t\r\f\v]+
 [+\-]?{digit}+[lLuU]?		{insert(constant_table, yytext, INT_CONST, 0); return INT_CONST;}
 [+\-]?{digit}+[.]{digit}+	{insert(constant_table, yytext, REAL_CONST, 0); return REAL_CONST;}
 
-\"							{BEGIN STRINGCONSTSTATE;}
-<STRINGCONSTSTATE>\"		{return STRING_CONST; BEGIN INITIAL;}
-<STRINGCONSTSTATE>\n		{printf(ANSI_COLOR_RED "%d:\t \t\t     : %s\n", yylineno, "Error in string constant" ANSI_COLOR_RESET); ++yylineno; BEGIN INITIAL; yyterminate();}
-<STRINGCONSTSTATE>.			;
+\"([^\n"]*)\"	{insert(constant_table, yytext, STRING_CONST, 0); return STRING_CONST;}
+
 
 ({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
 
