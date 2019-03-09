@@ -100,6 +100,23 @@ table* search (table ** header,char * lexeme) {
 }
 
 /**
+ * Recursive search within scopes 
+ */
+table* recursiveSearch (int currentScope, char* lexeme) {
+    table* ret = NULL;
+    while(currentScope != -1){
+        ret = search(scope_table[currentScope].header, lexeme);
+        if(ret != NULL){
+            break;
+        }
+        else{
+            currentScope = scope_table[currentScope].parent;
+        }
+    }
+    return ret;
+}
+
+/**
  * Insert into symbol table for current scope 
  */
 table * insert (table ** header, char * lexeme, int token_type, int data_type) {
