@@ -151,6 +151,7 @@ segment:
 	| RETURN REAL_CONST ';'
 	| RETURN INT_CONST ';'
 	| RETURN identifier ';'
+	| block
 	;
 
 /* if else-if production */
@@ -260,7 +261,9 @@ identifier:
 						$$ = ptr;
 					}
 					else {
-						$$ = search(scope_table[current_scope_ptr].header, $1);
+						// $$ = search(scope_table[current_scope_ptr].header, $1);
+						$$ = recursiveSearch(current_scope_ptr, $1);
+						if($$ == NULL) yyerror("Variable not declared"); 
 					}
 				}
 	;
