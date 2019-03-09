@@ -41,7 +41,7 @@ int curr_datatype;
 %token EQUALS LESS_THAN GREATER_THAN NOT_EQUAL LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
 
 // constants
-%token INT_CONST STRING_CONST HEX_CONST REAL_CONST
+%token <datatype> INT_CONST STRING_CONST HEX_CONST REAL_CONST CHAR_CONST
 
 // types
 %left ','
@@ -83,7 +83,7 @@ unit:
 /* Production rule for functions */
 function: 
 	type 
-	identifier	{isDecl = 0;}					 
+	identifier	{isDecl = 0; $2->is_func = 1;}					 
 	'(' 		{current_scope_ptr = create_scope(); isFunc = 1;}
 	argument_list 
 	')' 	{isDecl = 0;}
@@ -222,9 +222,9 @@ arithmetic_expression:
 	| '(' arithmetic_expression ')'	{$$ = $2;} 
 	| '!' arithmetic_expression	{$$ = $2;}
 	| identifier	{$$ = $1->data_type;}
-	| HEX_CONST		{$$ = INT;}
-	| INT_CONST 	{$$ = INT;}
-	| REAL_CONST	{$$ = DOUBLE;} 
+	| HEX_CONST		{$$ = $1;}
+	| INT_CONST 	{$$ = $1;}
+	| REAL_CONST	{$$ = $1;} 
 	| comparison_expression {$$ = $1;}
 	;
 comparison_expression:

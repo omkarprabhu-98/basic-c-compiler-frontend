@@ -10,6 +10,8 @@ struct table_entry {
     char * lexeme;
     int token_type;
     int data_type;
+	int is_func;
+	int dimension;
     struct table_entry * next;
 };
 typedef struct table_entry table;
@@ -111,6 +113,8 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
     strcpy(new_entry->lexeme, lexeme);
     new_entry->token_type = token_type;
     new_entry->data_type = data_type;
+	new_entry->is_func = 0;
+	new_entry->dimension = 0;
     new_entry->next = header[hashed];
     header[hashed] = new_entry;
     return header[hashed];
@@ -120,13 +124,13 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
  * Dislpay the SYMBOL table 
  */
 void display_sym_table (table ** header) {
-	printf("%-20s\t%-30s\t%-20s\n", "LEXEME", "Id", "DATATYPE");
-    printf("%-20s\t%-30s\t%-20s\n", "------", "--", "-------");
+	printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "LEXEME", "Id", "DATATYPE", "Function", "Dimension");
+    printf("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "------", "--", "-------", "-------", "-------");
     
 	for(int i = 0; i < HASH_TABLE_SIZE; ++i) {
 		table * ptr = header[i];
 		while(ptr!=NULL) {
-            printf("%-20s\t%-30d\t%-30d\n",ptr->lexeme, ptr->token_type,ptr->data_type);
+            printf("%-10s\t%-10d\t%-10d\t%-10d\t%-10d\n",ptr->lexeme, ptr->token_type, ptr->data_type, ptr->is_func, ptr->dimension);
             ptr = ptr->next;
         }
     }
