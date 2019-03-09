@@ -20,7 +20,7 @@ int curr_datatype;
 
 %union {
 	char * str;
-	table * sym_ptr;
+	table * table_ptr;
 	int datatype;
 };
 
@@ -41,7 +41,7 @@ int curr_datatype;
 %token EQUALS LESS_THAN GREATER_THAN NOT_EQUAL LESS_THAN_EQUAL_TO GREATER_THAN_EQUAL_TO
 
 // constants
-%token <datatype> INT_CONST STRING_CONST HEX_CONST REAL_CONST CHAR_CONST
+%token <table_ptr> INT_CONST STRING_CONST HEX_CONST REAL_CONST CHAR_CONST
 
 // types
 %left ','
@@ -59,7 +59,7 @@ int curr_datatype;
 %right '!'
 %left '(' ')' '[' ']'
 
-%type <sym_ptr> identifier
+%type <table_ptr> identifier
 %type <datatype> arithmetic_expression
 %type <datatype> comparison_expression
 
@@ -222,9 +222,10 @@ arithmetic_expression:
 	| '(' arithmetic_expression ')'	{$$ = $2;} 
 	| '!' arithmetic_expression	{$$ = $2;}
 	| identifier	{$$ = $1->data_type;}
-	| HEX_CONST		{$$ = $1;}
-	| INT_CONST 	{$$ = $1;}
-	| REAL_CONST	{$$ = $1;} 
+	| HEX_CONST		{$$ = $1->data_type;}
+	| INT_CONST 	{$$ = $1->data_type;}
+	| REAL_CONST	{$$ = $1->data_type;}
+	| CHAR_CONST	{$$ = $1->data_type;}
 	| comparison_expression {$$ = $1;}
 	;
 comparison_expression:

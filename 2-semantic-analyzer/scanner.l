@@ -74,13 +74,13 @@ whitespaces  [ \t\r\f\v]+
 {identifier}		{yylval.str = (char *)malloc(sizeof(yytext));
 					strcpy(yylval.str, yytext);  return IDENTIFIER;}
 
-[+\-]?[0][x|X]{hex}+[lLuU]?	{yylval.datatype = INT; insert(constant_table, yytext, HEX_CONST, 0); return HEX_CONST;}
-[+\-]?{digit}+[lLuU]?		{yylval.datatype = INT; insert(constant_table, yytext, INT_CONST, 0); return INT_CONST;}
-[+\-]?{digit}+[.]{digit}+	{yylval.datatype = FLOAT; insert(constant_table, yytext, REAL_CONST, 0); return REAL_CONST;}
+[+\-]?[0][x|X]{hex}+[lLuU]?	{yylval.table_ptr = insert(constant_table, yytext, HEX_CONST, INT); return HEX_CONST;}
+[+\-]?{digit}+[lLuU]?		{yylval.table_ptr = insert(constant_table, yytext, INT_CONST, INT); return INT_CONST;}
+[+\-]?{digit}+[.]{digit}+	{yylval.table_ptr = insert(constant_table, yytext, REAL_CONST, FLOAT); return REAL_CONST;}
 
-[']{alphabet}[']	{yylval.datatype = INT; insert(constant_table, yytext, CHAR_CONST, INT); return CHAR_CONST;}
+[']{alphanumeral}[']	{yylval.table_ptr = insert(constant_table, yytext, CHAR_CONST, INT); return CHAR_CONST;}
 
-\"([^\n"]*)\"	{yylval.datatype = 0; insert(constant_table, yytext, STRING_CONST, 0); return STRING_CONST;}
+\"([^\n"]*)\"	{yylval.table_ptr = insert(constant_table, yytext, STRING_CONST, 0); return STRING_CONST;}
 
 
 ({digit}+)({identifier})	{printf(ANSI_COLOR_RED "%d:\t%-20s : %s\n", yylineno, yytext, "Error in identifier naming" ANSI_COLOR_RESET);}
