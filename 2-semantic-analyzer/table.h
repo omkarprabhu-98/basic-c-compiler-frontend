@@ -132,7 +132,6 @@ table* recursiveSearch (int currentScope, char* lexeme) {
  */
 void insert_args_encoding(table* func_ptr, char * global_args_encoding) {
 	func_ptr->args_encoding = (char *)malloc(sizeof(char)*strlen(global_args_encoding));
-	printf("\n\n\n%s\n\n\n", global_args_encoding);
 	strcpy(func_ptr->args_encoding, global_args_encoding);
 }
 

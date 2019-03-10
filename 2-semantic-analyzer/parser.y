@@ -9,6 +9,10 @@ table ** constant_table;
 int yylex(void);
 void yyerror(char *);
 void check_type(int, int);
+void append_global_args_encoding(char);
+char mapper_datatype(int);
+char *string_rev(char *);
+
 
 // links scanner code  
 #include "lex.yy.c"
@@ -90,9 +94,9 @@ unit:
 function: 
 	type		
 	identifier	{isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;}					 
-	'(' 		{current_scope_ptr = create_scope(); isFunc = 1; flag_args = 1; args_encoding_idx = 0;}
+	'(' 		{current_scope_ptr = create_scope(); isFunc = 1; flag_args = 1; args_encoding_idx = 0; global_args_encoding[args_encoding_idx++] = '$';}
 	argument_list
-	')' 	{isDecl = 0; if (args_encoding_idx != 0) {global_args_encoding[args_encoding_idx++] = '\0'; insert_args_encoding($2, global_args_encoding); args_encoding_idx = 0; flag_args = 0;}}
+	')' 	{isDecl = 0; if (args_encoding_idx > 1) {global_args_encoding[args_encoding_idx++] = '\0'; insert_args_encoding($2, global_args_encoding); args_encoding_idx = 0; flag_args = 0;}}
 	block 
 	;
 
@@ -119,14 +123,14 @@ sign_specifier:
 	;
 /* Production rule data types */
 type_specifier: 
-	INT	{curr_datatype = INT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'i'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| SHORT {curr_datatype = SHORT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 's'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| LONG_LONG {curr_datatype = LONG_LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'L'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| LONG {curr_datatype = LONG; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'l'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| CHAR {curr_datatype = CHAR; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'c'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| FLOAT {curr_datatype = FLOAT; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'f'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| DOUBLE {curr_datatype = DOUBLE; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'd'; global_args_encoding[args_encoding_idx++] = '$';}}
-	| VOID {curr_datatype = VOID; if(flag_args == 1) {global_args_encoding[args_encoding_idx++] = 'v'; global_args_encoding[args_encoding_idx++] = '$';}}
+	INT	{curr_datatype = INT; append_global_args_encoding('i');}
+	| SHORT {curr_datatype = SHORT; append_global_args_encoding('s');}
+	| LONG_LONG {curr_datatype = LONG_LONG; append_global_args_encoding('L');}
+	| LONG {curr_datatype = LONG; append_global_args_encoding('l');}
+	| CHAR {curr_datatype = CHAR; append_global_args_encoding('i');}
+	| FLOAT {curr_datatype = FLOAT; append_global_args_encoding('f');}
+	| DOUBLE {curr_datatype = DOUBLE; append_global_args_encoding('d');}
+	| VOID {curr_datatype = VOID; append_global_args_encoding('v');}
 	;
 
 
@@ -185,17 +189,27 @@ while_segment:
 func_call:
 	identifier '=' identifier '(' parameter_list ')' ';' {if ($3->is_func == 0 || (recursiveSearch(current_scope_ptr, $3->lexeme) == NULL)) yyerror("Invalid function call");}
 	| type identifier '=' identifier '(' parameter_list ')' ';' {if ($4->is_func == 0 || (recursiveSearch(current_scope_ptr, $4->lexeme) == NULL)) yyerror("Invalid function call");}
-	| identifier '(' parameter_list ')' ';' {if ($1->is_func == 0 || (recursiveSearch(current_scope_ptr, $1->lexeme) == NULL)) yyerror("Invalid function call");}
+	| identifier 
+		'('	{flag_args = 1; args_encoding_idx = 0; global_args_encoding[args_encoding_idx++] = '$';} 
+		parameter_list
+		')' 
+		';' {	table *ptr = recursiveSearch(current_scope_ptr, $1->lexeme);
+				// printf("\n\n\n%s\n\n\n", global_args_encoding);
+				if ($1->is_func == 0 || (ptr == NULL)) {
+					yyerror("Invalid function call");
+				} 
+				else if (strcmp(ptr->args_encoding, string_rev(global_args_encoding)) != 0) {
+					yyerror("Invalid function call, Arguments mismatch");
+				}	
+			}
 	;
 parameter_list: 
 	parameters
 	|
 	;
 parameters: 
-	arithmetic_expression ',' parameters
-	| arithmetic_expression
-	| STRING_CONST ',' parameters
-	| STRING_CONST	
+	arithmetic_expression ',' parameters {append_global_args_encoding(mapper_datatype($1));}
+	| arithmetic_expression {append_global_args_encoding(mapper_datatype($1));}
 	;
 
 
@@ -296,4 +310,47 @@ void check_type(int a, int b) {
 	if (a != b) {
 		yyerror("Type Mismatch");
 	}
+}
+
+void append_global_args_encoding(char i) {
+	if(flag_args == 1) {
+		global_args_encoding[args_encoding_idx++] = i;
+		global_args_encoding[args_encoding_idx++] = '$';
+	}
+}
+
+char mapper_datatype(int datatype) {
+	switch(datatype) {
+		case INT:
+			return 'i';
+		case SHORT:
+			return 's';
+		case LONG_LONG:
+			return 'L';
+		case LONG:
+			return 'l';
+		case CHAR:
+			return 'c';
+		case FLOAT:
+			return 'f';
+		case DOUBLE:
+			return 'd';
+		case VOID:
+			return 'v';
+	}
+}
+
+char *string_rev(char *str)
+{
+      char *p1, *p2;
+
+      if (! str || ! *str)
+            return str;
+      for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
+      {
+            *p1 ^= *p2;
+            *p2 ^= *p1;
+            *p1 ^= *p2;
+      }
+      return str;
 }
