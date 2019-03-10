@@ -90,8 +90,8 @@ unit:
 function: 
 	type		
 	identifier	{isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;}					 
-	'(' 		{current_scope_ptr = create_scope(); isFunc = 1;}
-	argument_list {flag_args = 1;}
+	'(' 		{current_scope_ptr = create_scope(); isFunc = 1; flag_args = 1; args_encoding_idx = 0;}
+	argument_list
 	')' 	{isDecl = 0; if (args_encoding_idx != 0) {global_args_encoding[args_encoding_idx++] = '\0'; insert_args_encoding($2, global_args_encoding); args_encoding_idx = 0; flag_args = 0;}}
 	block 
 	;

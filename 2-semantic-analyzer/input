@@ -1,11 +1,8 @@
-int printf () {
+int aa(double xx, int yy, char cc) {
 
 }
-
 int main(float x, char y) {
 	int a, b;
-	printf("fdf", "hello omkar prabhu");
-	printf();
 	// b = a();
 
 	return 1;
