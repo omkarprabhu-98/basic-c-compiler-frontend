@@ -194,9 +194,12 @@ func_call:
 		parameter_list
 		')' 
 		';' {	table *ptr = recursiveSearch(current_scope_ptr, $1->lexeme);
+				if (args_encoding_idx > 1) {global_args_encoding[args_encoding_idx++] = '\0'; flag_args = 0;}
 				// printf("\n\n\n%s\n\n\n", global_args_encoding);
 				if ($1->is_func == 0 || (ptr == NULL)) {
 					yyerror("Invalid function call");
+				}
+				else if (ptr->args_encoding == NULL && args_encoding_idx == 1) { 
 				} 
 				else if (strcmp(ptr->args_encoding, string_rev(global_args_encoding)) != 0) {
 					yyerror("Invalid function call, Arguments mismatch");
