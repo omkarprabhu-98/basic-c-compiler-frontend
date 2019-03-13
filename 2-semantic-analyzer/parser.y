@@ -177,12 +177,12 @@ else_ifs:
 
 /* for segment production */
 for_segment:
-	FOR '(' expression arithmetic_expression ';' assignment_expression ')' block
+	FOR '(' expression arithmetic_expression ';' assignment_expression ')' block {check_type($4, INT);}
 	;
 
 /* while segment production */
 while_segment:
-	WHILE '(' arithmetic_expression ')' block
+	WHILE '(' arithmetic_expression ')' block {check_type($3, INT);}
 	;
 
 /* Function call */ 
@@ -278,14 +278,19 @@ identifier:
 						table * ptr = insert(scope_table[current_scope_ptr].header, $1, IDENTIFIER, curr_datatype);
 						if (ptr == NULL) {
 							yyerror("Redeclaration of a variable");
+							exit(0);
 						}
-						$$ = ptr;
+						else {
+							$$ = ptr;
+						}
+						
 					}
 					else {
 						// $$ = search(scope_table[current_scope_ptr].header, $1);
 						$$ = recursiveSearch(current_scope_ptr, $1);
 						if($$ == NULL) {
 							yyerror("Variable not declared");
+							exit(0);
 						}
 					}
 				}
@@ -333,7 +338,7 @@ char mapper_datatype(int datatype) {
 		case LONG:
 			return 'l';
 		case CHAR:
-			return 'c';
+			return 'i';
 		case FLOAT:
 			return 'f';
 		case DOUBLE:

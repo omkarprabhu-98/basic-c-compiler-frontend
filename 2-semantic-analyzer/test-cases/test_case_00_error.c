@@ -5,7 +5,15 @@
 
 
 int main () {
-	{
-		a = 1;
+
+	// incorrect type in while evaluation
+	while (2.33) {
+		return 1;
+	}
+
+	{	
+		int c;
+		// variable undeclared
+		c = a;
 	}
 }
