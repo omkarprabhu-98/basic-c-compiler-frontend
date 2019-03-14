@@ -260,6 +260,7 @@ comparison_expression:
 /*production rules for assignment expression*/
 assignment_expression:
 	identifier '=' arithmetic_expression
+	| identifier '[' INT_CONST ']' '=' arithmetic_expression {if ($1->dimension != 0 && ($1->dimension <= atoi($3->lexeme)|| atoi($3->lexeme) < 0)) {yyerror("Out of bounds");}}
 	;
 expression:
 	assignment_expression ';'
@@ -267,9 +268,10 @@ expression:
 
 
 array:
-	identifier '[' INT_CONST ']'	{	
-										if (atoi($3->lexeme) < 1) yyerror("Array size less than 1");
-										if ($1 != NULL) $1->dimension = atoi($3->lexeme);
+	identifier '[' INT_CONST ']'	{	if (isDecl) {
+											if (atoi($3->lexeme) < 1) yyerror("Array size less than 1");
+											if ($1 != NULL) $1->dimension = atoi($3->lexeme);
+										}
 									}
 	;
 

@@ -158,6 +158,28 @@ table * insert (table ** header, char * lexeme, int token_type, int data_type) {
 }
 
 /**
+ * Insert into constant table for current scope 
+ */
+table * insert_constant (table ** header, char * lexeme, int token_type, int data_type) {
+    table * new_entry = search(header, lexeme); 
+    if(new_entry != NULL)
+        return new_entry;
+    
+    unsigned int hashed = hash(lexeme);
+    new_entry = (table *) malloc(sizeof(table));
+    new_entry->lexeme = (char *) malloc(sizeof(lexeme));
+    strcpy(new_entry->lexeme, lexeme);
+    new_entry->token_type = token_type;
+    new_entry->data_type = data_type;
+	new_entry->is_func = 0;
+	new_entry->args_encoding = NULL;
+	new_entry->dimension = 0;
+    new_entry->next = header[hashed];
+    header[hashed] = new_entry;
+    return header[hashed];
+}
+
+/**
  * Dislpay the SYMBOL table 
  */
 void display_sym_table (table ** header) {
