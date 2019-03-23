@@ -95,7 +95,10 @@ unit:
 /* Production rule for functions */
 function: 
 	type		
-	identifier	{isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;}					 
+	identifier	{
+					isDecl = 0; $2->is_func = 1; func_return_type = curr_datatype;
+    				push_3addr_code_instruction(string($2->lexeme) + ":");
+				}					 
 	'(' 		{current_scope_ptr = create_scope(); isFunc = 1; flag_args = 1; args_encoding_idx = 0; global_args_encoding[args_encoding_idx++] = '$';}
 	argument_list
 	')' 	{isDecl = 0; if (args_encoding_idx > 1) {global_args_encoding[args_encoding_idx++] = '\0'; insert_args_encoding($2, global_args_encoding); args_encoding_idx = 0; flag_args = 0;}}
@@ -158,8 +161,13 @@ segment:
 	| expression
 	| CONTINUE ';'
 	| BREAK ';'
-	| RETURN ';' {if (VOID != func_return_type) yyerror("Incorrect return type");}
-	| RETURN arithmetic_expression ';'	{if ($2->datatype != func_return_type) yyerror("Incorrect return type");}
+	| RETURN ';' {if (VOID != func_return_type) yyerror("Incorrect return type");
+					push_3addr_code_instruction("return");
+				}
+	| RETURN arithmetic_expression ';'	{
+											if ($2->datatype != func_return_type) yyerror("Incorrect return type");
+											push_3addr_code_instruction("return " + string($2->temp_var));
+										}
 	| block
 	;
 
