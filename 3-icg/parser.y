@@ -76,10 +76,15 @@ stack<pair<int, int>> goto_stack;
 %right '!'
 %left '(' ')' '[' ']'
 
+
 %type <table_ptr> identifier
 %type <icg_ptr> arithmetic_expression
 %type <icg_ptr> comparison_expression
 %type <curr_inst> if_push_curr_instr
+%type <curr_inst> block;
+%type <curr_inst> elseif_push_curr_instr
+
+
 
 
 
@@ -150,7 +155,10 @@ type_specifier:
 block:
 		'{'		{if (!isFunc) current_scope_ptr =  create_scope(); isFunc = 0;} 
 		segments
-		'}'		{current_scope_ptr =  exit_scope();}
+		'}'		{
+					current_scope_ptr =  exit_scope();//adding here
+					$$ = next_instr_count;
+				}
 	;
 segments: 
 	segments segment
@@ -181,15 +189,19 @@ segment:
 /* if else-if production */
 if_segment: 
 	if_push_curr_instr block {backpatch($1, next_instr_count);}
-	| if_push_curr_instr block ELSE block {backpatch($1, next_instr_count);}
-	| if_push_curr_instr block else_if_segment {backpatch($1, next_instr_count);}
+	| if_push_curr_instr block {push_3addr_code_instruction("goto _");backpatch($1, next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
 	;
+
 else_if_segment:
-	ELSE_IF '(' arithmetic_expression ')' block else_ifs ELSE block
+	elseif_push_curr_instr block {push_3addr_code_instruction("goto _");backpatch($1,next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
+	| ELSE block 
 	;
-else_ifs:
-	ELSE_IF '(' arithmetic_expression ')' block else_ifs
-	|
+elseif_push_curr_instr: 
+	ELSE_IF '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
+	;
+
+if_push_curr_instr: 
+	IF '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
 	;
 
 /* for segment production */
@@ -337,9 +349,9 @@ identifier:
 				}
 	;
 
-if_push_curr_instr: 
-	IF '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
-	;
+
+
+
 %%
 
 
@@ -350,7 +362,6 @@ int main () {
 	scope_table[0].parent = -1;
     yyparse();
     display_scope_table();
-	display_const_table(constant_table);
 	display_const_table(constant_table);
 	generate_intermediate_code();
 
