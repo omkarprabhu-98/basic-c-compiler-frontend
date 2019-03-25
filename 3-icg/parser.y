@@ -21,6 +21,7 @@ char *string_rev(char *);
 int isFunc = 0;
 int isDecl = 0;
 int curr_datatype;
+int isFor = 0;
 
 int func_return_type;
 
@@ -28,7 +29,7 @@ int flag_args = 0;
 char global_args_encoding[500] = {'\0'};
 int args_encoding_idx = 0;
 
-stack<pair<int, int>> goto_stack;
+stack <int> for_stack;
 
 %}
 
@@ -46,7 +47,8 @@ stack<pair<int, int>> goto_stack;
 
 // keywords
 %token IF ELSE ELSE_IF
-%token FOR WHILE CONTINUE BREAK RETURN
+%token <curr_inst> FOR
+%token WHILE CONTINUE BREAK RETURN
 
 // data types
 %token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
@@ -80,12 +82,10 @@ stack<pair<int, int>> goto_stack;
 %type <table_ptr> identifier
 %type <icg_ptr> arithmetic_expression
 %type <icg_ptr> comparison_expression
+%type <icg_ptr> assignment_expression
 %type <curr_inst> if_push_curr_instr
 %type <curr_inst> block;
 %type <curr_inst> elseif_push_curr_instr
-
-
-
 
 
 %start begin
@@ -165,7 +165,6 @@ segments:
 	|
 	;
 
-
 /* production rule for a C segment */
 segment: 
 	if_segment 
@@ -186,14 +185,16 @@ segment:
 	| block
 	;
 
+
+
 /* if else-if production */
 if_segment: 
 	if_push_curr_instr block {backpatch($1, next_instr_count);}
-	| if_push_curr_instr block {push_3addr_code_instruction("goto _");backpatch($1, next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
+	| if_push_curr_instr block {push_3addr_code_instruction("goto _"); backpatch($1, next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
 	;
 
 else_if_segment:
-	elseif_push_curr_instr block {push_3addr_code_instruction("goto _");backpatch($1,next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
+	elseif_push_curr_instr block {push_3addr_code_instruction("goto _"); backpatch($1,next_instr_count);} else_if_segment {backpatch($2, next_instr_count);}
 	| ELSE block 
 	;
 elseif_push_curr_instr: 
@@ -204,15 +205,27 @@ if_push_curr_instr:
 	IF '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
 	;
 
+
+
 /* for segment production */
 for_segment:
-	FOR '(' expression arithmetic_expression ';' assignment_expression ')' block {check_type($4->datatype, INT);}
+	FOR '(' expression {$1 = next_instr_count;} 
+	
+	arithmetic_expression ';' {check_type($5->datatype, INT); for_stack.push(next_instr_count); push_3addr_code_instruction("if not " + $5->temp_var + " goto _"); isFor = 1;} 
+	
+	assignment_expression ')' {isFor = 0;}
+	
+	block {backpatch_for_increment($8->child_instructions); push_3addr_code_instruction("goto " + to_string($1)); backpatch(for_stack.top(), next_instr_count); for_stack.pop();}
 	;
+
+
 
 /* while segment production */
 while_segment:
 	WHILE '(' arithmetic_expression ')' block {check_type($3->datatype, INT);}
 	;
+
+
 
 /* Function call */ 
 func_call:
@@ -245,6 +258,7 @@ parameters:
 	;
 
 
+
 /* declaration statements */
 declaration:
 	type identifier identifier_lists ';' {isDecl = 0;}
@@ -257,31 +271,33 @@ identifier_lists:
 	;
 
 
+
+
 /*arithmetic expression production rules*/
 arithmetic_expression: 
 	arithmetic_expression '+' arithmetic_expression	{
 														check_type($1->datatype, $3->datatype); 
 														$$ = new icg_container();
 														$$->datatype = $1->datatype;
-														gen_3addr_code_arithmetic($$, $1, $3, " + ");
+														gen_3addr_code_arithmetic($$, $1, $3, " + ", isFor);
 													}
 	| arithmetic_expression '-' arithmetic_expression {
 														check_type($1->datatype, $3->datatype); 
 														$$ = new icg_container();
 														$$->datatype = $1->datatype;
-														gen_3addr_code_arithmetic($$, $1, $3, " - ");
+														gen_3addr_code_arithmetic($$, $1, $3, " - ", isFor);
 													}
 	| arithmetic_expression '*' arithmetic_expression {
 														check_type($1->datatype, $3->datatype); 
 														$$ = new icg_container();
 														$$->datatype = $1->datatype;
-														gen_3addr_code_arithmetic($$, $1, $3, " * ");
+														gen_3addr_code_arithmetic($$, $1, $3, " * ", isFor);
 													}
 	| arithmetic_expression '/' arithmetic_expression {
 														check_type($1->datatype, $3->datatype); 
 														$$ = new icg_container();
 														$$->datatype = $1->datatype;
-														gen_3addr_code_arithmetic($$, $1, $3, " / ");
+														gen_3addr_code_arithmetic($$, $1, $3, " / ", isFor);
 													}
 	| arithmetic_expression '^' arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
 	| arithmetic_expression '%' arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
@@ -303,19 +319,33 @@ comparison_expression:
 	| arithmetic_expression LESS_THAN_EQUAL_TO arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
 	| arithmetic_expression EQUALS arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
 	| arithmetic_expression NOT_EQUAL arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
-	| arithmetic_expression '<' arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
-	| arithmetic_expression '>' arithmetic_expression {check_type($1->datatype, $3->datatype); $$ = $1;}
+	| arithmetic_expression '<' arithmetic_expression {
+														check_type($1->datatype, $3->datatype); 
+														$$ = new icg_container();
+														$$->datatype = $1->datatype;
+														gen_3addr_code_arithmetic($$, $1, $3, " < ", isFor);
+													}
+	| arithmetic_expression '>' arithmetic_expression {
+														check_type($1->datatype, $3->datatype); 
+														$$ = new icg_container();
+														$$->datatype = $1->datatype;
+														gen_3addr_code_arithmetic($$, $1, $3, " > ", isFor);
+													}
 	;
 /*production rules for assignment expression*/
 assignment_expression:
-	identifier '=' arithmetic_expression {
-											gen_3addr_code_assignment($1, $3);
+	identifier '=' arithmetic_expression {	
+											$$ = new icg_container();
+											$$->temp_var = $1->lexeme;
+											gen_3addr_code_assignment($$, $3, isFor);
 										}
 	| identifier '[' INT_CONST ']' '=' arithmetic_expression {if ($1->dimension != 0 && ($1->dimension <= atoi($3->lexeme)|| atoi($3->lexeme) < 0)) {yyerror("Out of bounds");}}
 	;
 expression:
 	assignment_expression ';'
 	;
+
+
 
 
 array:
@@ -325,6 +355,8 @@ array:
 										}
 									}
 	;
+
+
 
 identifier: 
 	IDENTIFIER	{	if (isDecl) {

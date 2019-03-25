@@ -10,7 +10,7 @@ using namespace std;
 struct icg_container_entry {
     int datatype;
     string temp_var;
-    
+    string child_instructions;
 };
 typedef struct icg_container_entry icg_container;
 
@@ -33,23 +33,33 @@ void push_3addr_code_instruction(string inst) {
 /**
  * Generate 3 address code for arithematic expression
  */ 
-void gen_3addr_code_arithmetic(icg_container *lhs, icg_container *arg1, icg_container *arg2, string op) {
+void gen_3addr_code_arithmetic(icg_container *lhs, icg_container *arg1, icg_container *arg2, string op, int isFor) {
     // get new variable
     lhs->temp_var = "t" + to_string(temp_var_count++);
     // construct instruction
     string inst = lhs->temp_var + " = " + arg1->temp_var + op + arg2->temp_var;
-    // push
-    push_3addr_code_instruction(inst);
+    
+	lhs->child_instructions = arg1->child_instructions + arg2->child_instructions + inst + "$";
+
+	if (isFor == 0) {
+		// push
+    	push_3addr_code_instruction(inst);
+	}
 }
 
 /**
  * Generate 3 address code for assignment
  */ 
-void gen_3addr_code_assignment(table *lhs, icg_container *arg1) {
+void gen_3addr_code_assignment(icg_container *lhs, icg_container *arg1, int isFor) {
     // construct instruction
-    string inst = string(lhs->lexeme) + " = " + arg1->temp_var;
-    // push
-    push_3addr_code_instruction(inst);
+    string inst = string(lhs->temp_var) + " = " + arg1->temp_var;
+
+	lhs->child_instructions = arg1->child_instructions + inst + "$";
+
+	if (isFor == 0) {
+		// push
+    	push_3addr_code_instruction(inst);
+	}
 }
 
 /**
@@ -64,8 +74,24 @@ void generate_intermediate_code () {
 }
 
 /**
- * Fill the instruction number in goto slots
+ * Fills the instruction number in goto slots
  */  
 void backpatch(int index, int next_instr) {
 	intermediate_code[index].replace(intermediate_code[index].find("_"), 1, to_string(next_instr));
+}
+
+/**
+ * Fills the FOR increment instructions at the end of FOR body
+ */
+void backpatch_for_increment(string instr) {
+	string delimiter = "$";
+
+	size_t pos = 0;
+	string token;
+	while ((pos = instr.find(delimiter)) != string::npos) {
+		token = instr.substr(0, pos);
+		// std::cout << token << std::endl;
+		push_3addr_code_instruction(token);
+		instr.erase(0, pos + delimiter.length());
+	}
 }
