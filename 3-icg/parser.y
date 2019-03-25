@@ -27,6 +27,9 @@ int func_return_type;
 int flag_args = 0;
 char global_args_encoding[500] = {'\0'};
 int args_encoding_idx = 0;
+
+stack<pair<int, int>> goto_stack;
+
 %}
 
 %union {
@@ -34,6 +37,7 @@ int args_encoding_idx = 0;
 	table * table_ptr;
 	// int datatype;
 	icg_container* icg_ptr;
+	int curr_inst;
 };
 
 // TOKEN DECLARATION
@@ -41,7 +45,8 @@ int args_encoding_idx = 0;
 %token <str> IDENTIFIER 
 
 // keywords
-%token IF ELSE ELSE_IF FOR WHILE CONTINUE BREAK RETURN
+%token IF ELSE ELSE_IF
+%token FOR WHILE CONTINUE BREAK RETURN
 
 // data types
 %token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
@@ -74,6 +79,8 @@ int args_encoding_idx = 0;
 %type <table_ptr> identifier
 %type <icg_ptr> arithmetic_expression
 %type <icg_ptr> comparison_expression
+%type <curr_inst> if_push_curr_instr
+
 
 
 %start begin
@@ -173,9 +180,9 @@ segment:
 
 /* if else-if production */
 if_segment: 
-	IF '(' arithmetic_expression ')' block 
-	| IF '(' arithmetic_expression ')' block ELSE block
-	| IF '(' arithmetic_expression ')' block else_if_segment 
+	if_push_curr_instr block {backpatch($1, next_instr_count);}
+	| if_push_curr_instr block ELSE block {backpatch($1, next_instr_count);}
+	| if_push_curr_instr block else_if_segment {backpatch($1, next_instr_count);}
 	;
 else_if_segment:
 	ELSE_IF '(' arithmetic_expression ')' block else_ifs ELSE block
@@ -328,6 +335,10 @@ identifier:
 						}
 					}
 				}
+	;
+
+if_push_curr_instr: 
+	IF '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
 	;
 %%
 

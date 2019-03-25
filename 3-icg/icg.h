@@ -62,3 +62,10 @@ void generate_intermediate_code () {
     } 
     o_file.close();
 }
+
+/**
+ * Fill the instruction number in goto slots
+ */  
+void backpatch(int index, int next_instr) {
+	intermediate_code[index].replace(intermediate_code[index].find("_"), 1, to_string(next_instr));
+}
