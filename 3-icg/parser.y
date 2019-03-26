@@ -30,6 +30,8 @@ char global_args_encoding[500] = {'\0'};
 int args_encoding_idx = 0;
 
 stack <int> for_stack;
+stack <int> break_position;
+stack <int> continue_position;
 
 %}
 
@@ -174,8 +176,20 @@ segment:
 	| func_call
 	| declaration
 	| expression
-	| CONTINUE ';'
-	| BREAK ';'
+	| CONTINUE ';'	{
+						if( !continue_position.empty() )
+						{
+							push_3addr_code_instruction("goto " + to_string(continue_position.top()-1));
+							continue_position.pop();	
+						}
+						else{
+							yyerror("ERROR: Continue must be used in a loop");
+						}
+					}
+	| BREAK ';'	{
+					push_3addr_code_instruction("goto _");
+					break_position.push(next_instr_count);
+				}
 	| RETURN ';' {if (VOID != func_return_type) yyerror("Incorrect return type");
 					push_3addr_code_instruction("return");
 				}
@@ -223,10 +237,21 @@ for_segment:
 
 /* while segment production */
 while_segment:
-	while_push_curr_instr block {backpatch($1, next_instr_count); push_3addr_code_instruction("goto " + to_string($1-1));}
+	while_push_curr_instr block {
+									backpatch($1, next_instr_count); 
+									push_3addr_code_instruction("goto " + to_string($1-1));
+									if( !break_position.empty() ){
+										backpatch(break_position.top()-1, next_instr_count);
+										break_position.pop();
+									}
+								}
 	;
 while_push_curr_instr:
-	WHILE '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
+	WHILE '(' arithmetic_expression ')' {
+											$$ = next_instr_count; 
+											push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");
+											continue_position.push(next_instr_count);
+										}
 	;
 
 
