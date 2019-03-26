@@ -86,6 +86,7 @@ stack <int> for_stack;
 %type <curr_inst> if_push_curr_instr
 %type <curr_inst> block;
 %type <curr_inst> elseif_push_curr_instr
+%type <curr_inst> while_push_curr_instr
 
 
 %start begin
@@ -222,7 +223,10 @@ for_segment:
 
 /* while segment production */
 while_segment:
-	WHILE '(' arithmetic_expression ')' block {check_type($3->datatype, INT);}
+	while_push_curr_instr block {backpatch($1, next_instr_count); push_3addr_code_instruction("goto " + to_string($1-1));}
+	;
+while_push_curr_instr:
+	WHILE '(' arithmetic_expression ')' {$$ = next_instr_count; push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");}
 	;
 
 
