@@ -80,6 +80,15 @@ void backpatch(int index, int next_instr) {
 	intermediate_code[index].replace(intermediate_code[index].find("_"), 1, to_string(next_instr));
 }
 
+void backpatch_range(int start, int end, int next_instr, string delim) {
+	for (int i = start; i <= end; ++i) {
+		if (intermediate_code[i].find(delim) != string::npos) {
+			intermediate_code[i].replace(intermediate_code[i].find(delim), 2, to_string(next_instr));
+		}
+		
+	}
+}
+
 /**
  * Fills the FOR increment instructions at the end of FOR body
  */
