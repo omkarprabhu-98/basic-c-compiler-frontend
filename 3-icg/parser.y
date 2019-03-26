@@ -31,7 +31,9 @@ int args_encoding_idx = 0;
 
 stack <int> for_stack;
 stack <int> break_position;
-stack <int> continue_position;
+// first: 0-while 1-for
+// second: next_instr_count
+stack < pair<int,int> > continue_position;
 
 %}
 
@@ -177,13 +179,16 @@ segment:
 	| declaration
 	| expression
 	| CONTINUE ';'	{
-						if( !continue_position.empty() )
+						if( !continue_position.empty() && (continue_position.top()).first == 0 )
 						{
-							push_3addr_code_instruction("goto " + to_string(continue_position.top()-1));
+							push_3addr_code_instruction("goto " + to_string((continue_position.top()).second));
 							continue_position.pop();	
 						}
-						else{
-							yyerror("ERROR: Continue must be used in a loop");
+						if( !continue_position.empty() && (continue_position.top()).first == 1 )
+						{
+							push_3addr_code_instruction("goto _");
+							continue_position.pop();
+							continue_position.push( make_pair(1, next_instr_count-1) );
 						}
 					}
 	| BREAK ';'	{
@@ -224,13 +229,18 @@ if_push_curr_instr:
 
 /* for segment production */
 for_segment:
-	FOR '(' expression {$1 = next_instr_count; continue_position.push(next_instr_count+1);} 
+	FOR '(' expression {$1 = next_instr_count; continue_position.push( make_pair(1, -1));} 
 	
 	arithmetic_expression ';' {check_type($5->datatype, INT); for_stack.push(next_instr_count); push_3addr_code_instruction("if not " + $5->temp_var + " goto _"); isFor = 1;} 
 	
 	assignment_expression ')' {isFor = 0;}
 	
 	block {
+			if( !continue_position.empty() && continue_position.top().second != -1 )
+			{
+				backpatch((continue_position.top()).second, next_instr_count);
+				continue_position.pop();
+			}
 			backpatch_for_increment($8->child_instructions); 
 			push_3addr_code_instruction("goto " + to_string($1)); 
 			backpatch(for_stack.top(), next_instr_count); 
@@ -260,8 +270,8 @@ while_segment:
 while_push_curr_instr:
 	WHILE '(' arithmetic_expression ')' {
 											$$ = next_instr_count; 
+											continue_position.push( make_pair(0, next_instr_count-1) );
 											push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");
-											continue_position.push(next_instr_count);
 										}
 	;
 
