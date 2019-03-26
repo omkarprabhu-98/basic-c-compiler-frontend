@@ -224,13 +224,23 @@ if_push_curr_instr:
 
 /* for segment production */
 for_segment:
-	FOR '(' expression {$1 = next_instr_count;} 
+	FOR '(' expression {$1 = next_instr_count; continue_position.push(next_instr_count+1);} 
 	
 	arithmetic_expression ';' {check_type($5->datatype, INT); for_stack.push(next_instr_count); push_3addr_code_instruction("if not " + $5->temp_var + " goto _"); isFor = 1;} 
 	
 	assignment_expression ')' {isFor = 0;}
 	
-	block {backpatch_for_increment($8->child_instructions); push_3addr_code_instruction("goto " + to_string($1)); backpatch(for_stack.top(), next_instr_count); for_stack.pop();}
+	block {
+			backpatch_for_increment($8->child_instructions); 
+			push_3addr_code_instruction("goto " + to_string($1)); 
+			backpatch(for_stack.top(), next_instr_count); 
+			for_stack.pop();
+			if( !break_position.empty() )
+			{
+				backpatch(break_position.top()-1, next_instr_count);
+				break_position.pop();
+			}
+		}
 	;
 
 
@@ -240,7 +250,8 @@ while_segment:
 	while_push_curr_instr block {
 									backpatch($1, next_instr_count); 
 									push_3addr_code_instruction("goto " + to_string($1-1));
-									if( !break_position.empty() ){
+									if( !break_position.empty() )
+									{
 										backpatch(break_position.top()-1, next_instr_count);
 										break_position.pop();
 									}
