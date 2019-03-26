@@ -46,8 +46,8 @@ stack <int> for_stack;
 
 // keywords
 %token IF ELSE ELSE_IF
-%token <curr_inst> FOR
-%token WHILE CONTINUE BREAK RETURN
+%token <curr_inst> FOR WHILE
+%token CONTINUE BREAK RETURN
 
 // data types
 %token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
@@ -85,7 +85,6 @@ stack <int> for_stack;
 %type <curr_inst> if_push_curr_instr
 %type <curr_inst> block;
 %type <curr_inst> elseif_push_curr_instr
-%type <curr_inst> while_push_curr_instr
 
 
 %start begin
@@ -234,20 +233,20 @@ for_segment:
 
 /* while segment production */
 while_segment:
-	while_push_curr_instr block {
-									backpatch($1, next_instr_count); 
-									push_3addr_code_instruction("goto " + to_string($1-1));
-									backpatch_range($1, next_instr_count - 1, $1, "c_");
-									backpatch_range($1, next_instr_count - 1, next_instr_count, "b_");
-								}
-	;
-while_push_curr_instr:
-	WHILE '(' arithmetic_expression ')' {
-											$$ = next_instr_count; 
-											push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");
-										}
-	;
+	WHILE {$1 = next_instr_count;}
+	'(' arithmetic_expression ')' {
+										for_stack.push(next_instr_count);
+										push_3addr_code_instruction("if not "+ $4->temp_var + " goto _");
+									} 
+	block {
+				push_3addr_code_instruction("goto " + to_string($1)); 
+				backpatch(for_stack.top(), next_instr_count); 
+				for_stack.pop();
 
+				backpatch_range($1, next_instr_count - 1, $1, "c_");
+				backpatch_range($1, next_instr_count - 1, next_instr_count, "b_");
+			}
+	;
 
 
 /* Function call */ 
