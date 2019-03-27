@@ -279,8 +279,8 @@ while_push_curr_instr:
 
 /* Function call */ 
 func_call:
-	identifier '=' identifier '(' parameter_list ')' ';' {if ($3->is_func == 0 || (recursiveSearch(current_scope_ptr, $3->lexeme) == NULL)) yyerror("Invalid function call");}
-	| type identifier '=' identifier '(' parameter_list ')' ';' {if ($4->is_func == 0 || (recursiveSearch(current_scope_ptr, $4->lexeme) == NULL)) yyerror("Invalid function call");}
+	identifier '=' identifier '(' parameter_list ')' ';' {if ($3->is_func == 0 || (recursiveSearch(current_scope_ptr, $3->lexeme) == NULL)) yyerror("Invalid function call");push_3addr_code_instruction("call "+string($3->lexeme));}
+	| type identifier '=' identifier '(' parameter_list ')' ';' {if ($4->is_func == 0 || (recursiveSearch(current_scope_ptr, $4->lexeme) == NULL)) yyerror("Invalid function call");push_3addr_code_instruction("call "+string($4->lexeme));}
 	| identifier 
 		'('	{flag_args = 1; args_encoding_idx = 0; global_args_encoding[args_encoding_idx++] = '$';} 
 		parameter_list
@@ -295,7 +295,9 @@ func_call:
 				} 
 				else if (strcmp(ptr->args_encoding, string_rev(global_args_encoding)) != 0) {
 					yyerror("Invalid function call, Arguments mismatch");
-				}	
+				}
+				//code for pushing function label
+				push_3addr_code_instruction("call "+string($1->lexeme));	
 			}
 	;
 parameter_list: 
@@ -303,8 +305,14 @@ parameter_list:
 	|
 	;
 parameters: 
-	arithmetic_expression ',' parameters {append_global_args_encoding(mapper_datatype($1->datatype));}
-	| arithmetic_expression {append_global_args_encoding(mapper_datatype($1->datatype));}
+	arithmetic_expression ',' parameters {
+											append_global_args_encoding(mapper_datatype($1->datatype));
+										 	push_3addr_code_params("param "+string($1->temp_var));
+										 }
+	| arithmetic_expression {
+								append_global_args_encoding(mapper_datatype($1->datatype));
+								push_3addr_code_params("param "+string($1->temp_var));
+							}
 	;
 
 

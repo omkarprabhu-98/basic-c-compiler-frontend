@@ -28,6 +28,41 @@ void push_3addr_code_instruction(string inst) {
     // construct line 
     string line = to_string(next_instr_count++) + " : " + inst;
     intermediate_code.push_back(line);
+   
+}
+void push_3addr_code_params(string inst)
+{
+    
+    //pop from back all params and push this and pop that
+    if ((intermediate_code.back().find("param"))==string::npos)
+    {
+        // construct line 
+        string line = to_string(next_instr_count++) + " : " + inst;
+        intermediate_code.push_back(line);
+    }
+    else
+    {
+        vector<string> temp;
+        int count = 0;
+        while((intermediate_code.back().find("param"))!=string::npos)
+        {
+            string temp0 = intermediate_code.back().substr(0,intermediate_code.back().find(":")-1);
+            int no = stoi(temp0);
+            string temp1 = intermediate_code.back().substr(intermediate_code.back().find(":"),intermediate_code.back().size());
+            temp.push_back(to_string(no+1)+" "+temp1);
+            intermediate_code.pop_back();
+            count+=1;
+        }
+        string line = to_string(next_instr_count-count) + " : " + inst;
+        next_instr_count++;
+        intermediate_code.push_back(line);
+        while(temp.size()>0)
+        {
+            intermediate_code.push_back(temp.back());
+            temp.pop_back();
+        }
+    }
+       
 }
 
 /**
