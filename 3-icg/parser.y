@@ -22,7 +22,6 @@ int isFunc = 0;
 int isDecl = 0;
 int curr_datatype;
 int isFor = 0;
-
 int func_return_type;
 
 int flag_args = 0;
@@ -30,10 +29,6 @@ char global_args_encoding[500] = {'\0'};
 int args_encoding_idx = 0;
 
 stack <int> for_stack;
-stack <int> break_position;
-// first: 0-while 1-for
-// second: next_instr_count
-stack < pair<int,int> > continue_position;
 
 %}
 
@@ -51,8 +46,8 @@ stack < pair<int,int> > continue_position;
 
 // keywords
 %token IF ELSE ELSE_IF
-%token <curr_inst> FOR
-%token WHILE CONTINUE BREAK RETURN
+%token <curr_inst> FOR WHILE
+%token CONTINUE BREAK RETURN
 
 // data types
 %token INT SHORT LONG_LONG LONG CHAR SIGNED UNSIGNED FLOAT DOUBLE VOID
@@ -90,7 +85,6 @@ stack < pair<int,int> > continue_position;
 %type <curr_inst> if_push_curr_instr
 %type <curr_inst> block;
 %type <curr_inst> elseif_push_curr_instr
-%type <curr_inst> while_push_curr_instr
 
 
 %start begin
@@ -179,21 +173,10 @@ segment:
 	| declaration
 	| expression
 	| CONTINUE ';'	{
-						if( !continue_position.empty() && (continue_position.top()).first == 0 )
-						{
-							push_3addr_code_instruction("goto " + to_string((continue_position.top()).second));
-							continue_position.pop();	
-						}
-						if( !continue_position.empty() && (continue_position.top()).first == 1 )
-						{
-							push_3addr_code_instruction("goto _");
-							continue_position.pop();
-							continue_position.push( make_pair(1, next_instr_count-1) );
-						}
+						push_3addr_code_instruction("goto c_");
 					}
 	| BREAK ';'	{
-					push_3addr_code_instruction("goto _");
-					break_position.push(next_instr_count);
+					push_3addr_code_instruction("goto b_");
 				}
 	| RETURN ';' {if (VOID != func_return_type) yyerror("Incorrect return type");
 					push_3addr_code_instruction("return");
@@ -229,27 +212,20 @@ if_push_curr_instr:
 
 /* for segment production */
 for_segment:
-	FOR '(' expression {$1 = next_instr_count; continue_position.push( make_pair(1, -1));} 
+	FOR '(' expression {$1 = next_instr_count;} 
 	
 	arithmetic_expression ';' {check_type($5->datatype, INT); for_stack.push(next_instr_count); push_3addr_code_instruction("if not " + $5->temp_var + " goto _"); isFor = 1;} 
 	
 	assignment_expression ')' {isFor = 0;}
 	
 	block {
-			if( !continue_position.empty() && continue_position.top().second != -1 )
-			{
-				backpatch((continue_position.top()).second, next_instr_count);
-				continue_position.pop();
-			}
 			backpatch_for_increment($8->child_instructions); 
 			push_3addr_code_instruction("goto " + to_string($1)); 
 			backpatch(for_stack.top(), next_instr_count); 
 			for_stack.pop();
-			if( !break_position.empty() )
-			{
-				backpatch(break_position.top()-1, next_instr_count);
-				break_position.pop();
-			}
+
+			backpatch_range($1, next_instr_count - 1, $1, "c_");
+			backpatch_range($1, next_instr_count - 1, next_instr_count, "b_");
 		}
 	;
 
@@ -257,24 +233,20 @@ for_segment:
 
 /* while segment production */
 while_segment:
-	while_push_curr_instr block {
-									backpatch($1, next_instr_count); 
-									push_3addr_code_instruction("goto " + to_string($1-1));
-									if( !break_position.empty() )
-									{
-										backpatch(break_position.top()-1, next_instr_count);
-										break_position.pop();
-									}
-								}
-	;
-while_push_curr_instr:
-	WHILE '(' arithmetic_expression ')' {
-											$$ = next_instr_count; 
-											continue_position.push( make_pair(0, next_instr_count-1) );
-											push_3addr_code_instruction("if not "+ $3->temp_var + " goto _");
-										}
-	;
+	WHILE {$1 = next_instr_count;}
+	'(' arithmetic_expression ')' {
+										for_stack.push(next_instr_count);
+										push_3addr_code_instruction("if not "+ $4->temp_var + " goto _");
+									} 
+	block {
+				push_3addr_code_instruction("goto " + to_string($1)); 
+				backpatch(for_stack.top(), next_instr_count); 
+				for_stack.pop();
 
+				backpatch_range($1, next_instr_count - 1, $1, "c_");
+				backpatch_range($1, next_instr_count - 1, next_instr_count, "b_");
+			}
+	;
 
 
 /* Function call */ 
