@@ -72,6 +72,7 @@ int args_encoding_idx = 0;
 %type <table_ptr> identifier
 %type <datatype> arithmetic_expression
 %type <datatype> comparison_expression
+%type <table_ptr> array
 
 
 %start begin
@@ -247,6 +248,7 @@ arithmetic_expression:
 	| INT_CONST 	{$$ = $1->data_type;}
 	| REAL_CONST	{$$ = $1->data_type;}
 	| CHAR_CONST	{$$ = $1->data_type;}
+	| array	{$$ = $1->data_type;}
 	| comparison_expression {$$ = $1;}
 	;
 comparison_expression:
@@ -260,7 +262,7 @@ comparison_expression:
 /*production rules for assignment expression*/
 assignment_expression:
 	identifier '=' arithmetic_expression
-	| identifier '[' INT_CONST ']' '=' arithmetic_expression {if ($1->dimension != 0 && ($1->dimension <= atoi($3->lexeme)|| atoi($3->lexeme) < 0)) {yyerror("Out of bounds");}}
+	| array '=' arithmetic_expression
 	;
 expression:
 	assignment_expression ';'
@@ -271,6 +273,11 @@ array:
 	identifier '[' INT_CONST ']'	{	if (isDecl) {
 											if (atoi($3->lexeme) < 1) yyerror("Array size less than 1");
 											if ($1 != NULL) $1->dimension = atoi($3->lexeme);
+											$$ = $1;
+										}
+										else {
+											if ($1->dimension != 0 && ($1->dimension <= atoi($3->lexeme)|| atoi($3->lexeme) < 0)) 
+											{yyerror("Out of bounds");}	
 										}
 									}
 	;
