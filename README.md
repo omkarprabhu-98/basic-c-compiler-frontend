@@ -7,6 +7,17 @@ Analysis Phase (Frontend) for a basic C compiler
 - Error are presented when caught
 - Sample test-cases are written
 
+## General Usage Instrutions
+```
+$ ./run.sh <input_file> 
+```
+
+eg.
+```
+$ ./run.sh test-cases/test_case_0.c 
+```
+
+
 ## Folder Structure
 
 This project was build in increments, thus each component is shown as separate folders  modifying code in the previous component to incorporate the current component's functionalities.
